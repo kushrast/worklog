@@ -13,6 +13,7 @@ Todos:
 - Make real work log
 - diagram event actions
 - Add a clear state
+- Add main timer
 
 
 Done:
