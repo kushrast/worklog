@@ -14,3 +14,4 @@ Todos:
 - Potentially edit the time something started at 
 - Make real work log
 - change color of buttons
+- diagram event actions
