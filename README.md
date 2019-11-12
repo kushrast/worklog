@@ -13,6 +13,7 @@ Todos:
 - Potentially edit the time something started at 
 - Make real work log
 - diagram event actions
+- Add a clear state
 
 
 Done:
