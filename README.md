@@ -14,6 +14,7 @@ Todos:
 - diagram event actions
 - Add a clear state
 - Add main timer
+- persist active state 
 
 
 Done:
