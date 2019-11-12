@@ -12,3 +12,4 @@ Todos:
 - Display time worked on each task on main page
 - Make switching topics a bit easier
 - Potentially edit the time something started at 
+- Make real work log
