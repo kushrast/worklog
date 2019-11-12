@@ -1,6 +1,7 @@
 # worklog
 
 Todos:
+- [Bug] If you switch the topic, it logs the wrong topic as having been stopped
 - Add functionality to add time-tagged notes
 - Connect to a proper database
 - Split export to a file code into file backup and human-readable files
