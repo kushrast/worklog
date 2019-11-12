@@ -13,3 +13,4 @@ Todos:
 - Make switching topics a bit easier
 - Potentially edit the time something started at 
 - Make real work log
+- change color of buttons
