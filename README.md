@@ -10,3 +10,4 @@ Todos:
 - Move to React
 - Allow events list to be viewed in browser
 - Display time worked on each task on main page
+- Make switching topics a bit easier
