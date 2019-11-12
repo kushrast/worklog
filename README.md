@@ -15,6 +15,7 @@ Todos:
 - Add a clear state
 - Add main timer
 - persist active state 
+- [Bug] fix highlighting issue when new item gets added to list
 
 
 Done:
