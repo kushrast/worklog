@@ -7,7 +7,6 @@ Todos:
 - Allow Topics to be deleted
 - Allow topic names to be edited
 - Move to React
-- Allow events list to be viewed in browser
 - Display time worked on each task on main page
 - Potentially edit the time something started at 
 - Make real work log
@@ -24,3 +23,4 @@ Done:
 - Make switching topics a bit easier
 - [Bug] If you switch the topic, it logs the wrong topic as having been stopped
 - Add main timer
+- Allow events list to be viewed in browser
