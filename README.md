@@ -14,6 +14,7 @@ Todos:
 - diagram event actions
 - Add a clear state
 - persist active state 
+- fix semi-broken save to local storage
 - [Bug] fix highlighting issue when new item gets added to list
 
 
