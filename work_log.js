@@ -5,20 +5,24 @@ var activeTopicId = "";
 var time = null;
 var events = [];
 var topics = {};
+var startedTime = "";
+var timeElapsed = 0;
+var previousTimeTally = 0;
 
 $( document ).ready(function() {
 	setupEnvironment();
 });
 
 function setupEnvironment() {
-	$("#template").hide();
-
-	$("#event").hide();
-
-	$("#alert-template").hide();
+	hideTemplates();
 	setupStorage();
 	setClock();
+	renderTopics();
+	attachListeners();
+	checkFileAPI();
+}
 
+function attachListeners() {
 	$("body").on('click', '.topicButton', changeTopic);
 
 	$("body").on('click', '#toggle', function() {
@@ -26,11 +30,23 @@ function setupEnvironment() {
 	});
 
 	$("body").on('click', '#save_button', save_data);
-
-	renderTopics();
-
-	checkFileAPI();
 	$("#import_button").change(import_data);
+
+	$("#list_submit").on('keypress', function(e) {
+	if (e.which == 13) {
+
+		var id = addNewTopic($(this).val());
+
+		$(this).val("");
+		renderTopics();
+	}
+});
+}
+
+function hideTemplates() {
+	$("#template").hide();
+	$("#event").hide();
+	$("#alert-template").hide();
 }
 
 function setupStorage() {
@@ -41,8 +57,7 @@ function setupStorage() {
 
 	if (events != null && events != "" && events.length > 0) {
 		console.log(events);
-		$("#event").html(events[events.length-1]);
-		$("#event").show();
+		updateEvent(events[events.length-1], false)
 	}
 
 	topics = JSON.parse(localStorage.getItem("topics"));
@@ -54,31 +69,47 @@ function setupStorage() {
 }
 
 function setClock() {
- var current_time = new Date();
- var h = current_time.getHours();
- var m = formatTimeElement(current_time.getMinutes());
- var s = formatTimeElement(current_time.getSeconds());
- time = `${h}:${m}:${s}`
- $("#time").html(`Current Time: ${time}`);
- setTimeout(setClock, 500);
+	var current_time = new Date();
+
+
+	 if (timeRunning) {
+	 	timeElapsed = (current_time.valueOf() - startedTime.valueOf()) / 1000;
+
+	 	var timeSeconds = previousTimeTally + timeElapsed;
+	 	var timeString = formatCounter(timeSeconds);
+
+	 	$("#timeElapsed").html(timeString);
+	 }
+
+	 time = formatTimeElement(current_time);
+	 $("#time").html(`Current Time: ${time}`);
+	 setTimeout(setClock, 500);
 }
 
-function formatTimeElement(num) {
-	if (num < 10)
-		return `0${num}`;
-	else
-		return num
+function formatTimeElement(date) {
+	h = date.getHours();
+	m = date.getMinutes();
+	s = date.getSeconds();
+	if (m < 10)
+		m = `0${m}`;
+	if (s < 10)
+		s = `0${s}`;
+	return `${h}:${m}:${s}`;
 }
 
-$("#list_submit").on('keypress', function(e) {
-	if (e.which == 13) {
+function formatCounter(timeSeconds) {
+ 	var timeString;
+ 	var elapsedDate = new Date(timeSeconds*1000);
+ 	if (timeSeconds < 60) {
+ 		timeString = elapsedDate.getSeconds() + "s";
+ 	} else if (timeSeconds < 3600) {
+ 		timeString = elapsedDate.getMinutes() + "m " + elapsedDate.getSeconds() + "s";
+ 	} else {
+ 		timeString = formatTimeElement(elapsedDate);
+ 	}
 
-		addNewTopic($(this).val());
-
-		$(this).val("");
-		renderTopics();
-	}
-});
+ 	return timeString;
+}
 
 function renderTopics() {
 	$("#list_items").html("");
@@ -87,33 +118,67 @@ function renderTopics() {
 		var topicButton = $("#template").clone();
 		topicButton.html(topics[key].name);
 		topicButton.val(topics[key].id);
+		topicButton.attr("id", topics[key].id);
 		$("#list_items").append(topicButton);
 		topicButton.show();
 	}
 
 	if (activeTopicId != null && activeTopicId != "") {
-		$("#topic").html("Current Topic: " + topics[activeTopicId].name);
+		setTopicAlert(topics[activeTopicId].name);
 	}
+
+	highlightActive();
+}
+
+function setTopicAlert(val) {
+	$("#topic").html("Current Topic: " + val);
 }
 
 function addNewTopic(topic) {
 	var topicId = Math.floor(100000 + Math.random() * 900000);
-	topics[topicId] = {id: topicId, name: topic};
-	updateTopics(topics);
+	topics[topicId] = {id: topicId, name: topic, time: 0};
+	storeTopics(topics);
 }
 
 function changeTopic() {
 	if (activeTopicId != $(this).val()) {
-		activeTopicId = $(this).val();
-		$("#topic").html("Current Topic: " + $(this).html());
-		console.log("changing topics");
-		updateActiveID(activeTopicId);
 
-		adjustRunning(false);
+		if (activeTopicId != null && activeTopicId != "") {
+			adjustRunning(false);
+			topics[activeTopicId].time = previousTimeTally;
+			unhighlightActive();
+		}
+
+		activeTopicId = $(this).val();
+		setTopicAlert($(this).html());
+		storeActiveID(activeTopicId);
+
+		highlightActive();
+		previousTimeTally = topics[activeTopicId].time;
+		$("#timeElapsed").html(formatCounter(previousTimeTally));
+	} else {
+		adjustRunning(!timeRunning, true);
+	}
+
+	storeLocalStorage(events, topics, activeTopicId);
+}
+
+function unhighlightActive() {
+	$(`#${activeTopicId}`).removeClass("btn-success").removeClass("btn-danger").addClass("btn-light");
+}
+
+function highlightActive() {
+	var activeTopic = $(`#${activeTopicId}`);
+	activeTopic.removeClass("btn-light")
+
+	if (timeRunning) {
+		activeTopic.addClass("btn-danger");
+	} else {
+		activeTopic.addClass("btn-success");
 	}
 }
 
-function adjustRunning(state) {
+function adjustRunning(state, keepTime=false) {
 	var eventString = "";
 	if (timeRunning && !state) {
 		eventString = `Stopped working on '${topics[activeTopicId].name}' at ${time}`;
@@ -123,31 +188,43 @@ function adjustRunning(state) {
 		eventString = `Started work on '${topics[activeTopicId].name}' at ${time}`;
 	}
 
-	adjustRunningHelper(state, eventString);
+	adjustRunningHelper(state, eventString, true, keepTime);
 }
 
-function adjustRunningHelper(state, eventString) {
-	updateEvent(eventString);
+function adjustRunningHelper(state, eventString, store=true, keepTime=false) {
+	updateEvent(eventString, store);
 
 	timeRunning = state;
 
 	if (timeRunning) {
 		$("#toggle").html("Stop");
 		$("#toggle").removeClass("btn-success").addClass("btn-danger");
+		$(`#${activeTopicId}`).removeClass("btn-success").addClass("btn-danger");
+		startedTime = new Date();
+		$("#timeElapsed").prop("disabled", false);
 	} else {
+		if (keepTime) {
+			previousTimeTally += timeElapsed;
+		}
+		$("#timeElapsed").prop("disabled", true);
 		$("#toggle").html("Start");
 		$("#toggle").removeClass("btn-danger").addClass("btn-success");
+		$(`#${activeTopicId}`).removeClass("btn-danger").addClass("btn-success");
 	}
+	timeElapsed = 0;
 }
 
-function updateEvent(eventString) {
+function updateEvent(eventString, store=true) {
 	if (eventString != "") {
 		$("#event").html(eventString);
 		$("#event").show();
+
+		if (store) {
 		events.push(eventString);
 		console.log(events);
 
-		updateEvents(events);
+		storeEvents(events);
+		}
 	}
 }
 
@@ -191,11 +268,11 @@ function import_data(event) {
 			topics = file_dump.topics;
 			activeTopicId = file_dump.activeID;
 
-			updateLocalStorage(events, topics, activeTopicId);
+			storeLocalStorage(events, topics, activeTopicId);
 			renderTopics();
 
 			if (events != null && events != "" && events.length > 0) {
-				adjustRunningHelper(false, events[events.length-1])
+				adjustRunningHelper(false, events[events.length-1], true)
 			}
 
 			var updateAlert = $("#alert-template").clone();
@@ -212,19 +289,19 @@ function import_data(event) {
 	reader.readAsText(f);
 }
 
-function updateEvents(events) {
-	updateLocalStorage(events, "", "");
+function storeEvents(events) {
+	storeLocalStorage(events, "", "");
 }
 
-function updateTopics(topics) {
-	updateLocalStorage("", topics, "");
+function storeTopics(topics) {
+	storeLocalStorage("", topics, "");
 }
 
-function updateActiveID(activeID) {
-	updateLocalStorage("", "", activeID);
+function storeActiveID(activeID) {
+	storeLocalStorage("", "", activeID);
 }
 
-function updateLocalStorage(events="", topics="", activeID="") {
+function storeLocalStorage(events="", topics="", activeID="") {
 	if (events != null && events != "") {
 		localStorage.setItem("events", JSON.stringify(events));
 	}
