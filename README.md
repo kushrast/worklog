@@ -13,7 +13,6 @@ Todos:
 - Make real work log
 - diagram event actions
 - Add a clear state
-- Add main timer
 - persist active state 
 - [Bug] fix highlighting issue when new item gets added to list
 
@@ -23,3 +22,4 @@ Done:
 - Highlight buttons differently
 - Make switching topics a bit easier
 - [Bug] If you switch the topic, it logs the wrong topic as having been stopped
+- Add main timer
