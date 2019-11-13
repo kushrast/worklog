@@ -14,7 +14,7 @@ Todos:
 - Add a clear state
 - persist active state 
 - fix semi-broken save to local storage
-- [Bug] fix highlighting issue when new item gets added to list
+- Make Topic Pages
 
 
 Done:
@@ -24,3 +24,4 @@ Done:
 - [Bug] If you switch the topic, it logs the wrong topic as having been stopped
 - Add main timer
 - Allow events list to be viewed in browser
+- [Bug] fix highlighting issue when new item gets added to list
