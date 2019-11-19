@@ -1,6 +1,6 @@
 //Work Log Javascript File
 
-var timeRunning = false;
+var timerActive = false;
 var activeTopicId = "";
 var time = null;
 var events = [];
@@ -9,55 +9,41 @@ var startedTime = "";
 var timeElapsed = 0;
 var previousTimeTally = 0;
 
+var updateTickers = true;
+
+var timeElapsedAtAlert = 0;
+var timestampAtAlert = "";
+var timeoutVar = null;
+
+var MODAL_TIME_CONSTANT = 900000;
+
 $( document ).ready(function() {
 	setupEnvironment();
 });
 
+/* Setup environment when page is first loaded */
 function setupEnvironment() {
 	hideTemplates();
 	setupStorage();
-	setClock();
-	renderTopics();
+	startClock();
+	render();
 	attachListeners();
 	checkFileAPI();
 }
 
-function attachListeners() {
-	$("body").on('click', '.topicButton', changeTopic);
-
-	$("body").on('click', '#toggle', function() {
-		adjustRunning(!timeRunning);
-	});
-
-	$("body").on('click', '#save_button', save_data);
-	$("#import_button").change(import_data);
-
-	$("#list_submit").on('keypress', function(e) {
-	if (e.which == 13) {
-
-		var id = addNewTopic($(this).val());
-
-		$(this).val("");
-		renderTopics();
-	}
-});
-}
-
+/* Hide templates used for dynamic content generation */
 function hideTemplates() {
 	$("#template").hide();
-	$("#event").hide();
 	$("#alert-template").hide();
+	$("#event-template").hide();
+	$("#stopTimer").hide();
 }
 
+/* Pull data from storage when page first loads */
 function setupStorage() {
 	events = JSON.parse(localStorage.getItem("events"));
 	if (events == null) {
 		events = [];
-	}
-
-	if (events != null && events != "" && events.length > 0) {
-		console.log(events);
-		updateEvent(events[events.length-1], false)
 	}
 
 	topics = JSON.parse(localStorage.getItem("topics"));
@@ -68,24 +54,128 @@ function setupStorage() {
 	activeTopicId = localStorage.getItem("activeID");
 }
 
-function setClock() {
+/* Start clock timer */
+function startClock() {
+	clockTick();
+}
+
+/* Re-render topic and events lists */
+function render() {
+	renderTopics();
+	renderEvents();
+}
+
+/* Recreates topics list. Should also highlight the active topic (if there is one) */
+function renderTopics() {
+	$("#list_items").html("");
+
+	for (var key in topics) {
+		var topicDiv = $("#template").clone();
+		var topicButton = topicDiv.find("#work-template");
+		var timeElapsed = topicDiv.find("#time-elapsed");
+
+		topicButton.html(topics[key].name);
+		topicButton.val(topics[key].id);
+		topicButton.attr("id", topics[key].id);
+		topicDiv.attr("id", "work"+topics[key].id);
+		timeElapsed.attr("id", "time-elapsed-"+topics[key].id);
+		timeElapsed.html(topics[key].time);
+		$("#list_items").append(topicDiv);
+		topicDiv.show();
+	}
+
+	setActiveTopic();
+}
+
+/* Recreates the events list. Only shows the latest 10 events. */
+function renderEvents() {
+	$("#event-items").html("");
+
+	console.log(events);
+	var i = 0;
+	if (events.length > 10) {
+		i = events.length - 10;
+	}
+	for (;i < events.length; i++) {
+		console.log(events[i]);
+		var eventsListItem = $("#event-template").clone();
+		eventsListItem.html(events[i]);
+		$("#event-items").append(eventsListItem);
+		eventsListItem.show();
+	}
+}
+
+/* Attaches button listeners */
+function attachListeners() {
+	$("body").on('click', '.topicButton', selectTopic);
+	$("body").on('click', '#deleteTopic', deleteTopic);
+	$("body").on('click', '#startTimer', startTimer);
+	$("body").on('click', '#stopTimer', stopTimer);
+	$("body").on('click', '#startTimer', startTimer);
+	$("body").on('click', '#save_button', save_data);
+	$("body").on('click', '#clear-data', clearData);
+	$("body").on('click', '#isActiveModalReject', modalReject);
+	$("body").on('click', '#isActiveModalAccept', modalAccept);
+
+	$("#import_button").change(import_data);
+
+	$("#list_submit").on('keypress', function(e) {
+	if (e.which == 13) {
+
+		var id = addNewTopic($(this).val());
+
+		$(this).val("");
+		render();
+	}
+
+	$("body").on('click', '#createWorkItem', function() {
+		addNewTopic($("#list_submit").val());
+		$("#list_submit").val("");
+		render();
+	});
+});
+}
+
+/* Checks if browser can read files for file import */
+function checkFileAPI() {
+    if (window.File && window.FileReader && window.FileList && window.Blob) {
+        reader = new FileReader();
+        return true; 
+    } else {
+        alert('The File APIs are not fully supported by your browser. Fallback required.');
+        return false;
+    }
+}
+
+/* Fetches current time and updates timer/clock */
+function clockTick() {
 	var current_time = new Date();
 
+	updateTimer(current_time);
+	updateClock(current_time);
+	setTimeout(clockTick, 500);
+}
 
-	 if (timeRunning) {
+/* Updates Main Clock */
+function updateClock(current_time) {
+	 time = formatTimeElement(current_time);
+	 $("#time").html(`Time: ${time}`);
+}
+
+/* Updates Work Item Timer */
+function updateTimer(current_time) {
+	if (timerActive && updateTickers) {
 	 	timeElapsed = (current_time.valueOf() - startedTime.valueOf()) / 1000;
 
 	 	var timeSeconds = previousTimeTally + timeElapsed;
 	 	var timeString = formatCounter(timeSeconds);
 
 	 	$("#timeElapsed").html(timeString);
+	 	$("#time-elapsed-"+activeTopicId).html(timeString);
 	 }
-
-	 time = formatTimeElement(current_time);
-	 $("#time").html(`Current Time: ${time}`);
-	 setTimeout(setClock, 500);
 }
 
+/* Formats a full datetime string */
 function formatTimeElement(date) {
 	h = date.getHours();
 	m = date.getMinutes();
@@ -97,6 +187,7 @@ function formatTimeElement(date) {
 	return `${h}:${m}:${s}`;
 }
 
+/* Formats the work item timer value depending on length of time worked */
 function formatCounter(timeSeconds) {
  	var timeString;
  	var elapsedDate = new Date(timeSeconds*1000);
@@ -111,127 +202,199 @@ function formatCounter(timeSeconds) {
  	return timeString;
 }
 
-function renderTopics() {
-	$("#list_items").html("");
+/* Stops timer (if running) */
+function stopTimer() {
+	stopTimerUtils(timeElapsed, time);
+}
 
-	for (var key in topics) {
-		var topicButton = $("#template").clone();
-		topicButton.html(topics[key].name);
-		topicButton.val(topics[key].id);
-		topicButton.attr("id", topics[key].id);
-		$("#list_items").append(topicButton);
-		topicButton.show();
+function stopTimerUtils(timeElapsed, time) {
+	if (timerActive) {
+		timerActive = false;
+		updateTickers = false;
+		previousTimeTally += timeElapsed;
+		topics[activeTopicId].time = previousTimeTally;
+		timeElapsed = 0;
+
+		var eventString = `Stopped working on '${topics[activeTopicId].name}' at ${time}`;
+		pushEvent(eventString);
+
+		$("#elapsedButton").prop("disabled", true);
+		$("#topic").removeClass("btn-outline-primary").addClass("btn-light");
+		$("#time-elapsed-"+activeTopicId).prop("disabled", true);
+		$("#stopTimer").hide();
+		$("#startTimer").show();
+		
+		setActiveTopic();
+	}
+	clearTimeout(timeoutVar);
+}
+
+/* Loads timer information */
+function loadTimer() {
+	previousTimeTally = topics[activeTopicId].time;
+	$("#timeElapsed").html(formatCounter(previousTimeTally));
+	$("#time-elapsed-"+activeTopicId).html(previousTimeTally);
+}
+
+/* Starts the timer (if stopped) */
+function startTimer() {
+	if (!timerActive) {
+		timeElapsed = 0;
+		startedTime = new Date();
+		timerActive = true;
+		updateTickers = true;
+		var eventString = `Started working on '${topics[activeTopicId].name}' at ${time}`;
+		pushEvent(eventString);
+
+		$("#elapsedButton").prop("disabled", false);
+		$("#topic").removeClass("btn-light").addClass("btn-outline-primary");
+		$("#time-elapsed-"+activeTopicId).prop("disabled", false);
+		
+		setActiveTopic();
+
+		timeoutVar = setTimeout(checkIfActive, MODAL_TIME_CONSTANT);
+
+		$("#stopTimer").show();
+		$("#startTimer").hide();
+	}
+}
+
+function checkIfActive() {
+	timeElapsedAtAlert = timeElapsed;
+	timestampAtAlert = time;
+	updateTickers = false;
+
+	$("#elapsedButton").prop("disabled", true);
+	$("#topic").removeClass("btn-outline-primary").addClass("btn-light");
+	$("#time-elapsed-"+activeTopicId).prop("disabled", true);
+	$("#stopTimer").hide();
+	$("#startTimer").show();
+
+	$('#isActiveModalLabel').html("Are you still working on '" + topics[activeTopicId].name + "'?");
+	$('#isActiveModal').modal();
+}
+
+function modalReject() {
+	stopTimerUtils(timeElapsedAtAlert, timestampAtAlert);
+}
+
+function modalAccept() {
+	$("#elapsedButton").prop("disabled", false);
+	$("#topic").removeClass("btn-light").addClass("btn-outline-primary");
+	$("#time-elapsed-"+activeTopicId).prop("disabled", false);
+	$("#stopTimer").show();
+	$("#startTimer").hide();
+
+	updateTickers = true;
+	timeoutVar = setTimeout(checkIfActive, MODAL_TIME_CONSTANT);
+}
+
+function pushEvent(eventString) {
+	events.push(eventString);
+	renderEvents();
+}
+
+/* Sets the value of the topic alert */
+function setTopicAlert(val) {
+	$("#topic").html(val);
+}
+
+/* Adds new Topic to list */
+function addNewTopic(topic) {
+	if (topic != "") {
+		console.log(topic);
+		var topicId = Math.floor(100000 + Math.random() * 900000);
+		topics[topicId] = {id: topicId, name: topic, time: 0};
+
+		console.log(activeTopicId);
+		if (activeTopicId == "" || activeTopicId == null || timerActive == false) {
+			activeTopicId = topicId;
+		}
+		storeTopics();
+	}
+}
+
+function deleteTopic() {
+	var topicId = $(this).parent().parent().parent().attr("id").substring(4);
+	setTimeout(deleteUtils, 500, topicId);
+}
+
+function deleteUtils(topicId) {
+	if (activeTopicId == topicId) {
+		if (timerActive) {
+			if (updateTickers) {
+				stopTimer();
+			} else {
+				stopTimerUtils(timeElapsedAtAlert, timestampAtAlert);
+			}
+		}
+		activeTopicId = "";
+	}
+	delete topics[topicId];
+	storeTopics()
+	renderTopics();
+}
+
+/* Selects a topic to be active (may be the current active topic) */
+function selectTopic() {
+	//Topic is different than existing active topic
+	if (activeTopicId != $(this).val()) {
+		if (activeTopicId != null && activeTopicId != "") {
+			stopTimer();
+			unsetActiveTopic();
+		}
+
+		activeTopicId = $(this).val();
+		storeActiveID();
+
+		setActiveTopic();
+		loadTimer();
+		startTimer();
+	} else {
+		toggleTimer(!timerActive);
+	}
+
+	renderEvents();
+	storeLocalStorage(events, topics, activeTopicId);
+}
+
+function unsetActiveTopic() {
+	$(`#${activeTopicId}`).removeClass("btn-success").removeClass("btn-danger").addClass("btn-light");
+}
+
+function setActiveTopic() {
+	var activeTopic = $(`#${activeTopicId}`);
+	console.log(activeTopic);
+	activeTopic.removeClass("btn-light").removeClass("btn-danger").removeClass("btn-success");
+
+	if (timerActive) {
+		activeTopic.addClass("btn-danger");
+	} else {
+		activeTopic.addClass("btn-success");
 	}
 
 	if (activeTopicId != null && activeTopicId != "") {
 		setTopicAlert(topics[activeTopicId].name);
 	}
-
-	highlightActive();
 }
 
-function setTopicAlert(val) {
-	$("#topic").html("Current Topic: " + val);
-}
-
-function addNewTopic(topic) {
-	var topicId = Math.floor(100000 + Math.random() * 900000);
-	topics[topicId] = {id: topicId, name: topic, time: 0};
-	storeTopics(topics);
-}
-
-function changeTopic() {
-	if (activeTopicId != $(this).val()) {
-
-		if (activeTopicId != null && activeTopicId != "") {
-			adjustRunning(false);
-			topics[activeTopicId].time = previousTimeTally;
-			unhighlightActive();
-		}
-
-		activeTopicId = $(this).val();
-		setTopicAlert($(this).html());
-		storeActiveID(activeTopicId);
-
-		highlightActive();
-		previousTimeTally = topics[activeTopicId].time;
-		$("#timeElapsed").html(formatCounter(previousTimeTally));
-	} else {
-		adjustRunning(!timeRunning, true);
-	}
-
-	storeLocalStorage(events, topics, activeTopicId);
-}
-
-function unhighlightActive() {
-	$(`#${activeTopicId}`).removeClass("btn-success").removeClass("btn-danger").addClass("btn-light");
-}
-
-function highlightActive() {
-	var activeTopic = $(`#${activeTopicId}`);
-	activeTopic.removeClass("btn-light")
-
-	if (timeRunning) {
-		activeTopic.addClass("btn-danger");
-	} else {
-		activeTopic.addClass("btn-success");
+function toggleTimer(state) {
+	if (timerActive && !state) {
+		stopTimer();
+	} else if (!timerActive && state) {
+		startTimer();
 	}
 }
 
-function adjustRunning(state, keepTime=false) {
-	var eventString = "";
-	if (timeRunning && !state) {
-		eventString = `Stopped working on '${topics[activeTopicId].name}' at ${time}`;
-	}
-
-	if (!timeRunning && state) {
-		eventString = `Started work on '${topics[activeTopicId].name}' at ${time}`;
-	}
-
-	adjustRunningHelper(state, eventString, true, keepTime);
-}
-
-function adjustRunningHelper(state, eventString, store=true, keepTime=false) {
-	updateEvent(eventString, store);
-
-	timeRunning = state;
-
-	if (timeRunning) {
-		$("#toggle").html("Stop");
-		$("#toggle").removeClass("btn-success").addClass("btn-danger");
-		$(`#${activeTopicId}`).removeClass("btn-success").addClass("btn-danger");
-		startedTime = new Date();
-		$("#timeElapsed").prop("disabled", false);
-	} else {
-		if (keepTime) {
-			previousTimeTally += timeElapsed;
-		}
-		$("#timeElapsed").prop("disabled", true);
-		$("#toggle").html("Start");
-		$("#toggle").removeClass("btn-danger").addClass("btn-success");
-		$(`#${activeTopicId}`).removeClass("btn-danger").addClass("btn-success");
-	}
-	timeElapsed = 0;
-}
-
-function updateEvent(eventString, store=true) {
-	if (eventString != "") {
-		$("#event").html(eventString);
-		$("#event").show();
-
-		if (store) {
-		events.push(eventString);
-		console.log(events);
-
-		storeEvents(events);
-		}
-	}
+function clearData() {
+	localStorage.clear();
+	location.reload();
 }
 
 function save_data() {
 	var new_events = events.slice(0);
 
-	if (timeRunning) {
+	if (timerActive) {
 		new_events.push(`Stopped working on '${topics[activeTopicId].name}' at ${time}`);
 	}
 	var file_dump = {"events" : new_events, "topics" : topics, "activeID": activeTopicId}
@@ -243,25 +406,12 @@ function save_data() {
 	$("#file_download")[0].click();
 }
 
-function checkFileAPI() {
-    if (window.File && window.FileReader && window.FileList && window.Blob) {
-        reader = new FileReader();
-        return true; 
-    } else {
-        alert('The File APIs are not fully supported by your browser. Fallback required.');
-        return false;
-    }
-}
-
 function import_data(event) {
 	var reader = new FileReader();
 	var f = event.target.files[0];
-    console.log(event.target.files[0]);
-
     // Closure to capture the file information.
 	reader.onloadend = (function(file) {
 		return function(e) {
-			console.log(e.target.result);
 
 			var file_dump = JSON.parse(e.target.result);
 			events = file_dump.events;
@@ -269,11 +419,7 @@ function import_data(event) {
 			activeTopicId = file_dump.activeID;
 
 			storeLocalStorage(events, topics, activeTopicId);
-			renderTopics();
-
-			if (events != null && events != "" && events.length > 0) {
-				adjustRunningHelper(false, events[events.length-1], true)
-			}
+			render();
 
 			var updateAlert = $("#alert-template").clone();
 			$("#alerts").append(updateAlert);
@@ -289,16 +435,16 @@ function import_data(event) {
 	reader.readAsText(f);
 }
 
-function storeEvents(events) {
+function storeEvents() {
 	storeLocalStorage(events, "", "");
 }
 
-function storeTopics(topics) {
+function storeTopics() {
 	storeLocalStorage("", topics, "");
 }
 
-function storeActiveID(activeID) {
-	storeLocalStorage("", "", activeID);
+function storeActiveID() {
+	storeLocalStorage("", "", activeTopicId);
 }
 
 function storeLocalStorage(events="", topics="", activeID="") {
