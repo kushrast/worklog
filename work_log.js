@@ -103,6 +103,7 @@ function renderTopics() {
 		topicButton.attr("id", topicsDictionary[key].id);
 		topicDiv.attr("id", "work"+topicsDictionary[key].id);
 		timeElapsed.attr("id", "time-elapsed-"+topicsDictionary[key].id);
+		topicDiv.find("#time-note-group").hide();
 		$("#list_items").append(topicDiv);
 		topicDiv.show();
 	}
@@ -406,10 +407,12 @@ function selectTopic() {
 
 function unsetActiveTopic() {
 	$(`#${selectedTopicID}`).removeClass("btn-success").removeClass("btn-danger").addClass("btn-light");
+	$(`#${selectedTopicID}`).parent().find("#time-note-group").hide();
 }
 
 function setActiveTopic() {
 	var activeTopic = $(`#${selectedTopicID}`);
+	activeTopic.parent().find("#time-note-group").show();
 	activeTopic.removeClass("btn-light").removeClass("btn-danger").removeClass("btn-success");
 
 	if (isWorkingOnTask) {
