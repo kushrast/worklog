@@ -1,19 +1,22 @@
 //Work Log Javascript File
 
-var timerActive = false;
-var activeTopicId = "";
-var time = null;
-var events = [];
-var topics = {};
-var startedTime = "";
-var timeElapsed = 0;
-var previousTimeTally = 0;
+var isWorkingOnTask = false;
+var shouldUpdateTicker = true;
 
-var updateTickers = true;
+var selectedTopicID = "";
+var currTimeFormatted = null;
+var eventsLogList = [];
+var topicsDictionary = {};
+
+var workStartedTimestamp = "";
+var currSessionTimeElapsedSeconds = 0;
+var previousSessionsTimeElapsedSeconds = 0;
 
 var timeElapsedAtAlert = 0;
 var timestampAtAlert = "";
 var timeoutVar = null;
+
+var show_events = true;
 
 var MODAL_TIME_CONSTANT = 900000;
 
@@ -24,8 +27,8 @@ $( document ).ready(function() {
 /* Setup environment when page is first loaded */
 function setupEnvironment() {
 	hideTemplates();
-	setupStorage();
 	startClock();
+	setupStorage();
 	render();
 	attachListeners();
 	checkFileAPI();
@@ -36,22 +39,38 @@ function hideTemplates() {
 	$("#template").hide();
 	$("#alert-template").hide();
 	$("#event-template").hide();
-	$("#stopTimer").hide();
+	$("#show-events").hide();
+	$("#stop-timer").hide();
 }
 
 /* Pull data from storage when page first loads */
 function setupStorage() {
-	events = JSON.parse(localStorage.getItem("events"));
-	if (events == null) {
-		events = [];
+	eventsLogList = JSON.parse(localStorage.getItem("events"));
+	if (eventsLogList == null) {
+		eventsLogList = [];
 	}
 
-	topics = JSON.parse(localStorage.getItem("topics"));
-	if (topics == null) {
-		topics = {};
+	topicsDictionary = JSON.parse(localStorage.getItem("topics"));
+	if (topicsDictionary == null) {
+		topicsDictionary = {};
 	}
 
-	activeTopicId = localStorage.getItem("activeID");
+	selectedTopicID = localStorage.getItem("selectedTopicID");
+
+	if (selectedTopicID != "") {
+		if (localStorage.getItem("workStartedTimestamp") != "" && localStorage.getItem("workStartedTimestamp") != null) {
+			workStartedTimestamp = Date.parse(localStorage.getItem("workStartedTimestamp"));
+		}
+
+		shouldUpdateTicker = false;
+		if (localStorage.getItem("isWorkingOnTask") == "true") {
+			isWorkingOnTask = true;
+		}
+
+		if (isWorkingOnTask) {
+			checkIfActive();
+		}
+	}
 }
 
 /* Start clock timer */
@@ -61,6 +80,10 @@ function startClock() {
 
 /* Re-render topic and events lists */
 function render() {
+	if (selectedTopicID != "" && selectedTopicID != null) {
+		document.title = "Work Log - " + topicsDictionary[selectedTopicID].name;
+		$("#time-elapsed-header").html(formatCounter(topicsDictionary[selectedTopicID].time));
+	}
 	renderTopics();
 	renderEvents();
 }
@@ -69,17 +92,17 @@ function render() {
 function renderTopics() {
 	$("#list_items").html("");
 
-	for (var key in topics) {
+	for (var key in topicsDictionary) {
 		var topicDiv = $("#template").clone();
 		var topicButton = topicDiv.find("#work-template");
 		var timeElapsed = topicDiv.find("#time-elapsed");
 
-		topicButton.html(topics[key].name);
-		topicButton.val(topics[key].id);
-		topicButton.attr("id", topics[key].id);
-		topicDiv.attr("id", "work"+topics[key].id);
-		timeElapsed.attr("id", "time-elapsed-"+topics[key].id);
-		timeElapsed.html(topics[key].time);
+		timeElapsed.html(formatCounter(topicsDictionary[key].time));
+		topicButton.html(topicsDictionary[key].name);
+		topicButton.val(topicsDictionary[key].id);
+		topicButton.attr("id", topicsDictionary[key].id);
+		topicDiv.attr("id", "work"+topicsDictionary[key].id);
+		timeElapsed.attr("id", "time-elapsed-"+topicsDictionary[key].id);
 		$("#list_items").append(topicDiv);
 		topicDiv.show();
 	}
@@ -87,39 +110,56 @@ function renderTopics() {
 	setActiveTopic();
 }
 
+function hideEvents() {
+	show_events = false;
+	renderEvents();
+
+	$("#hide-events").hide();
+	$("#show-events").show();
+}
+
+function showEvents() {
+	show_events = true;
+	renderEvents();
+
+	$("#hide-events").show();
+	$("#show-events").hide();
+}
+
 /* Recreates the events list. Only shows the latest 10 events. */
 function renderEvents() {
 	$("#event-items").html("");
 
-	console.log(events);
-	var i = 0;
-	if (events.length > 10) {
-		i = events.length - 10;
-	}
-	for (;i < events.length; i++) {
-		console.log(events[i]);
-		var eventsListItem = $("#event-template").clone();
-		eventsListItem.html(events[i]);
-		$("#event-items").append(eventsListItem);
-		eventsListItem.show();
+	if (show_events) {
+		var i = 0;
+		if (eventsLogList.length > 10) {
+			i = eventsLogList.length - 10;
+		}
+		for (;i < eventsLogList.length; i++) {
+			var eventsListItem = $("#event-template").clone();
+			eventsListItem.html(eventsLogList[i]);
+			$("#event-items").append(eventsListItem);
+			eventsListItem.show();
+		}
 	}
 }
 
 /* Attaches button listeners */
 function attachListeners() {
 	$("body").on('click', '.topicButton', selectTopic);
-	$("body").on('click', '#deleteTopic', deleteTopic);
-	$("body").on('click', '#startTimer', startTimer);
-	$("body").on('click', '#stopTimer', stopTimer);
-	$("body").on('click', '#startTimer', startTimer);
-	$("body").on('click', '#save_button', save_data);
+	$("body").on('click', '#delete-topic', deleteTopic);
+	$("body").on('click', '#start-timer', startTimer);
+	$("body").on('click', '#stop-timer', stopTimer);
+	$("body").on('click', '#save-button', saveData);
 	$("body").on('click', '#clear-data', clearData);
-	$("body").on('click', '#isActiveModalReject', modalReject);
-	$("body").on('click', '#isActiveModalAccept', modalAccept);
+	$("body").on('click', '#is-active-modal-reject', modalReject);
+	$("body").on('click', '#is-active-modal-accept', modalAccept);
+	$("body").on('click', '#hide-events', hideEvents);
+	$("body").on('click', '#show-events', showEvents);
 
-	$("#import_button").change(import_data);
+	$("#import-button").change(importData);
 
-	$("#list_submit").on('keypress', function(e) {
+	$("#list-submit").on('keypress', function(e) {
 	if (e.which == 13) {
 
 		var id = addNewTopic($(this).val());
@@ -128,9 +168,9 @@ function attachListeners() {
 		render();
 	}
 
-	$("body").on('click', '#createWorkItem', function() {
-		addNewTopic($("#list_submit").val());
-		$("#list_submit").val("");
+	$("body").on('click', '#create-work-item', function() {
+		addNewTopic($("#list-submit").val());
+		$("#list-submit").val("");
 		render();
 	});
 });
@@ -158,20 +198,20 @@ function clockTick() {
 
 /* Updates Main Clock */
 function updateClock(current_time) {
-	 time = formatTimeElement(current_time);
-	 $("#time").html(`Time: ${time}`);
+	 currTimeFormatted = formatTimeElement(current_time);
+	 $("#time").html(`Time: ${currTimeFormatted}`);
 }
 
 /* Updates Work Item Timer */
 function updateTimer(current_time) {
-	if (timerActive && updateTickers) {
-	 	timeElapsed = (current_time.valueOf() - startedTime.valueOf()) / 1000;
+	if (isWorkingOnTask && shouldUpdateTicker) {
+	 	currSessionTimeElapsedSeconds = (current_time.valueOf() - workStartedTimestamp.valueOf()) / 1000;
 
-	 	var timeSeconds = previousTimeTally + timeElapsed;
+	 	var timeSeconds = previousSessionsTimeElapsedSeconds + currSessionTimeElapsedSeconds;
 	 	var timeString = formatCounter(timeSeconds);
 
-	 	$("#timeElapsed").html(timeString);
-	 	$("#time-elapsed-"+activeTopicId).html(timeString);
+	 	$("#time-elapsed-header").html(timeString);
+	 	$("#time-elapsed-"+selectedTopicID).html(timeString);
 	 }
 }
 
@@ -190,13 +230,12 @@ function formatTimeElement(date) {
 /* Formats the work item timer value depending on length of time worked */
 function formatCounter(timeSeconds) {
  	var timeString;
- 	var elapsedDate = new Date(timeSeconds*1000);
  	if (timeSeconds < 60) {
- 		timeString = elapsedDate.getSeconds() + "s";
+ 		timeString = Math.floor(timeSeconds) + "s";
  	} else if (timeSeconds < 3600) {
- 		timeString = elapsedDate.getMinutes() + "m " + elapsedDate.getSeconds() + "s";
+ 		timeString = Math.floor(timeSeconds / 60) + "m " + Math.floor(timeSeconds % 60) + "s";
  	} else {
- 		timeString = formatTimeElement(elapsedDate);
+ 		timeString = Math.floor(timeSeconds / 3600) + "h " + Math.floor((timeSeconds % 3600) / 60) + "m " + Math.floor(timeSeconds % 60) + "s";
  	}
 
  	return timeString;
@@ -204,74 +243,81 @@ function formatCounter(timeSeconds) {
 
 /* Stops timer (if running) */
 function stopTimer() {
-	stopTimerUtils(timeElapsed, time);
+	stopTimerUtils(currSessionTimeElapsedSeconds, currTimeFormatted);
 }
 
 function stopTimerUtils(timeElapsed, time) {
-	if (timerActive) {
-		timerActive = false;
-		updateTickers = false;
-		previousTimeTally += timeElapsed;
-		topics[activeTopicId].time = previousTimeTally;
-		timeElapsed = 0;
+	if (isWorkingOnTask) {
+		isWorkingOnTask = false;
+		shouldUpdateTicker = false;
+		previousSessionsTimeElapsedSeconds += currSessionTimeElapsedSeconds;
+		topicsDictionary[selectedTopicID].time = previousSessionsTimeElapsedSeconds;
+		currSessionTimeElapsedSeconds = 0;
 
-		var eventString = `Stopped working on '${topics[activeTopicId].name}' at ${time}`;
+		var eventString = `Stopped working on '${topicsDictionary[selectedTopicID].name}' at ${time}`;
 		pushEvent(eventString);
 
-		$("#elapsedButton").prop("disabled", true);
+		$("#elapsed-button").prop("disabled", true);
 		$("#topic").removeClass("btn-outline-primary").addClass("btn-light");
-		$("#time-elapsed-"+activeTopicId).prop("disabled", true);
-		$("#stopTimer").hide();
-		$("#startTimer").show();
+		$("#time-elapsed-"+selectedTopicID).prop("disabled", true);
+		$("#stop-timer").hide();
+		$("#start-timer").show();
 		
 		setActiveTopic();
+
+		localStorage.setItem("isWorkingOnTask", false);
+		storeTopics();
 	}
 	clearTimeout(timeoutVar);
 }
 
 /* Loads timer information */
 function loadTimer() {
-	previousTimeTally = topics[activeTopicId].time;
-	$("#timeElapsed").html(formatCounter(previousTimeTally));
-	$("#time-elapsed-"+activeTopicId).html(previousTimeTally);
+	previousSessionsTimeElapsedSeconds = topicsDictionary[selectedTopicID].time;
+	$("#time-elapsed-header").html(formatCounter(previousSessionsTimeElapsedSeconds));
+	$("#time-elapsed-"+selectedTopicID).html(formatCounter(previousSessionsTimeElapsedSeconds));
 }
 
 /* Starts the timer (if stopped) */
 function startTimer() {
-	if (!timerActive) {
-		timeElapsed = 0;
-		startedTime = new Date();
-		timerActive = true;
-		updateTickers = true;
-		var eventString = `Started working on '${topics[activeTopicId].name}' at ${time}`;
+	if (!isWorkingOnTask) {
+		currSessionTimeElapsedSeconds = 0;
+		loadTimer();
+		workStartedTimestamp = new Date();
+		isWorkingOnTask = true;
+		shouldUpdateTicker = true;
+		var eventString = `Started working on '${topicsDictionary[selectedTopicID].name}' at ${currTimeFormatted}`;
 		pushEvent(eventString);
 
-		$("#elapsedButton").prop("disabled", false);
+		$("#elapsed-button").prop("disabled", false);
 		$("#topic").removeClass("btn-light").addClass("btn-outline-primary");
-		$("#time-elapsed-"+activeTopicId).prop("disabled", false);
+		$("#time-elapsed-"+selectedTopicID).prop("disabled", false);
 		
 		setActiveTopic();
 
 		timeoutVar = setTimeout(checkIfActive, MODAL_TIME_CONSTANT);
 
-		$("#stopTimer").show();
-		$("#startTimer").hide();
+		$("#stop-timer").show();
+		$("#start-timer").hide();
+
+		localStorage.setItem("workStartedTimestamp", workStartedTimestamp);
+		localStorage.setItem("isWorkingOnTask", true);
 	}
 }
 
 function checkIfActive() {
-	timeElapsedAtAlert = timeElapsed;
-	timestampAtAlert = time;
-	updateTickers = false;
+	timeElapsedAtAlert = currSessionTimeElapsedSeconds;
+	timestampAtAlert = currTimeFormatted;
+	shouldUpdateTicker = false;
 
-	$("#elapsedButton").prop("disabled", true);
+	$("#elapsed-button").prop("disabled", true);
 	$("#topic").removeClass("btn-outline-primary").addClass("btn-light");
-	$("#time-elapsed-"+activeTopicId).prop("disabled", true);
-	$("#stopTimer").hide();
-	$("#startTimer").show();
+	$("#time-elapsed-"+selectedTopicID).prop("disabled", true);
+	$("#stop-timer").hide();
+	$("#start-timer").show();
 
-	$('#isActiveModalLabel').html("Are you still working on '" + topics[activeTopicId].name + "'?");
-	$('#isActiveModal').modal();
+	$('#is-active-modal-label').html("Are you still working on '" + topicsDictionary[selectedTopicID].name + "'?");
+	$('#is-active-modal').modal();
 }
 
 function modalReject() {
@@ -279,18 +325,18 @@ function modalReject() {
 }
 
 function modalAccept() {
-	$("#elapsedButton").prop("disabled", false);
+	$("#elapsed-button").prop("disabled", false);
 	$("#topic").removeClass("btn-light").addClass("btn-outline-primary");
-	$("#time-elapsed-"+activeTopicId).prop("disabled", false);
-	$("#stopTimer").show();
-	$("#startTimer").hide();
+	$("#time-elapsed-"+selectedTopicID).prop("disabled", false);
+	$("#stop-timer").show();
+	$("#start-timer").hide();
 
-	updateTickers = true;
+	shouldUpdateTicker = true;
 	timeoutVar = setTimeout(checkIfActive, MODAL_TIME_CONSTANT);
 }
 
 function pushEvent(eventString) {
-	events.push(eventString);
+	eventsLogList.push(eventString);
 	renderEvents();
 }
 
@@ -302,13 +348,12 @@ function setTopicAlert(val) {
 /* Adds new Topic to list */
 function addNewTopic(topic) {
 	if (topic != "") {
-		console.log(topic);
 		var topicId = Math.floor(100000 + Math.random() * 900000);
-		topics[topicId] = {id: topicId, name: topic, time: 0};
+		topicsDictionary[topicId] = {id: topicId, name: topic, time: 0};
 
-		console.log(activeTopicId);
-		if (activeTopicId == "" || activeTopicId == null || timerActive == false) {
-			activeTopicId = topicId;
+		if (selectedTopicID == "" || selectedTopicID == null || isWorkingOnTask == false) {
+			selectedTopicID = topicId;
+			storeSelectedTopicID();
 		}
 		storeTopics();
 	}
@@ -320,17 +365,17 @@ function deleteTopic() {
 }
 
 function deleteUtils(topicId) {
-	if (activeTopicId == topicId) {
-		if (timerActive) {
-			if (updateTickers) {
+	if (selectedTopicID == topicId) {
+		if (isWorkingOnTask) {
+			if (shouldUpdateTicker) {
 				stopTimer();
 			} else {
 				stopTimerUtils(timeElapsedAtAlert, timestampAtAlert);
 			}
 		}
-		activeTopicId = "";
+		selectedTopicID = "";
 	}
-	delete topics[topicId];
+	delete topicsDictionary[topicId];
 	storeTopics()
 	renderTopics();
 }
@@ -338,50 +383,50 @@ function deleteUtils(topicId) {
 /* Selects a topic to be active (may be the current active topic) */
 function selectTopic() {
 	//Topic is different than existing active topic
-	if (activeTopicId != $(this).val()) {
-		if (activeTopicId != null && activeTopicId != "") {
+	if (selectedTopicID != $(this).val()) {
+		if (selectedTopicID != null && selectedTopicID != "") {
 			stopTimer();
 			unsetActiveTopic();
 		}
 
-		activeTopicId = $(this).val();
-		storeActiveID();
+		selectedTopicID = $(this).val();
+		storeSelectedTopicID();
 
 		setActiveTopic();
-		loadTimer();
 		startTimer();
+
+		document.title = "Work Log - " + topicsDictionary[selectedTopicID].name;
 	} else {
-		toggleTimer(!timerActive);
+		toggleTimer(!isWorkingOnTask);
 	}
 
 	renderEvents();
-	storeLocalStorage(events, topics, activeTopicId);
+	storeLocalStorage(eventsLogList, topicsDictionary, selectedTopicID);
 }
 
 function unsetActiveTopic() {
-	$(`#${activeTopicId}`).removeClass("btn-success").removeClass("btn-danger").addClass("btn-light");
+	$(`#${selectedTopicID}`).removeClass("btn-success").removeClass("btn-danger").addClass("btn-light");
 }
 
 function setActiveTopic() {
-	var activeTopic = $(`#${activeTopicId}`);
-	console.log(activeTopic);
+	var activeTopic = $(`#${selectedTopicID}`);
 	activeTopic.removeClass("btn-light").removeClass("btn-danger").removeClass("btn-success");
 
-	if (timerActive) {
+	if (isWorkingOnTask) {
 		activeTopic.addClass("btn-danger");
 	} else {
 		activeTopic.addClass("btn-success");
 	}
 
-	if (activeTopicId != null && activeTopicId != "") {
-		setTopicAlert(topics[activeTopicId].name);
+	if (selectedTopicID != null && selectedTopicID != "") {
+		setTopicAlert(topicsDictionary[selectedTopicID].name);
 	}
 }
 
 function toggleTimer(state) {
-	if (timerActive && !state) {
+	if (isWorkingOnTask && !state) {
 		stopTimer();
-	} else if (!timerActive && state) {
+	} else if (!isWorkingOnTask && state) {
 		startTimer();
 	}
 }
@@ -391,13 +436,13 @@ function clearData() {
 	location.reload();
 }
 
-function save_data() {
-	var new_events = events.slice(0);
+function saveData() {
+	var new_events = eventsLogList.slice(0);
 
-	if (timerActive) {
-		new_events.push(`Stopped working on '${topics[activeTopicId].name}' at ${time}`);
+	if (isWorkingOnTask) {
+		new_events.push(`Stopped working on '${topicsDictionary[selectedTopicID].name}' at ${currTimeFormatted}`);
 	}
-	var file_dump = {"events" : new_events, "topics" : topics, "activeID": activeTopicId}
+	var file_dump = {"events" : new_events, "topics" : topicsDictionary, "selectedTopicID": selectedTopicID}
 	var blob = new Blob([JSON.stringify(file_dump, null, 2)], {type : 'application/json'});
 	var url = window.URL.createObjectURL(blob);
 	$("#file_download").html(url);
@@ -406,7 +451,7 @@ function save_data() {
 	$("#file_download")[0].click();
 }
 
-function import_data(event) {
+function importData(event) {
 	var reader = new FileReader();
 	var f = event.target.files[0];
     // Closure to capture the file information.
@@ -414,11 +459,11 @@ function import_data(event) {
 		return function(e) {
 
 			var file_dump = JSON.parse(e.target.result);
-			events = file_dump.events;
-			topics = file_dump.topics;
-			activeTopicId = file_dump.activeID;
+			eventsLogList = file_dump.events;
+			topicsDictionary = file_dump.topics;
+			selectedTopicID = file_dump.selectedTopicID;
 
-			storeLocalStorage(events, topics, activeTopicId);
+			storeLocalStorage(eventsLogList, topicsDictionary, selectedTopicID);
 			render();
 
 			var updateAlert = $("#alert-template").clone();
@@ -436,27 +481,27 @@ function import_data(event) {
 }
 
 function storeEvents() {
-	storeLocalStorage(events, "", "");
+	storeLocalStorage(eventsLogList, "", "");
 }
 
 function storeTopics() {
-	storeLocalStorage("", topics, "");
+	storeLocalStorage("", topicsDictionary, "");
 }
 
-function storeActiveID() {
-	storeLocalStorage("", "", activeTopicId);
+function storeSelectedTopicID() {
+	storeLocalStorage("", "", selectedTopicID);
 }
 
-function storeLocalStorage(events="", topics="", activeID="") {
-	if (events != null && events != "") {
-		localStorage.setItem("events", JSON.stringify(events));
+function storeLocalStorage(eventsLogList="", topicsDictionary="", selectedTopicID="") {
+	if (eventsLogList != null && eventsLogList != "") {
+		localStorage.setItem("events", JSON.stringify(eventsLogList));
 	}
 	
-	if (topics != null && topics != "") {
-		localStorage.setItem("topics", JSON.stringify(topics));
+	if (topicsDictionary != null && topicsDictionary != "") {
+		localStorage.setItem("topics", JSON.stringify(topicsDictionary));
 	}
 	
-	if (activeID != null && activeID != "") {
-		localStorage.setItem("activeID", activeID);
+	if (selectedTopicID != null && selectedTopicID != "") {
+		localStorage.setItem("selectedTopicID", selectedTopicID);
 	}
 }

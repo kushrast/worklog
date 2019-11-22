@@ -19,21 +19,21 @@
 	</style>
 
 	<body>
-		<div class="modal fade" id="isActiveModal" tabindex="-1" role="dialog" aria-labelledby="isActiveModalLabel" aria-hidden="true">
+		<div class="modal fade" id="is-active-modal" tabindex="-1" role="dialog" aria-labelledby="is-active-modal-label" aria-hidden="true">
 		  <div class="modal-dialog" role="document">
 		    <div class="modal-content">
 		      <div class="modal-header">
-		        <h5 class="modal-title" id="isActiveModalLabel">Are you still working?</h5>
+		        <h5 class="modal-title" id="is-active-modal-label">Are you still working?</h5>
 		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 		          <span aria-hidden="true">&times;</span>
 		        </button>
 		      </div>
-		      <div class="modal-body" id="isActiveModalBody">
+		      <div class="modal-body" id="is-active-modal-body">
 		        Just checking in!
 		      </div>
 		      <div class="modal-footer">
-		        <button type="button" class="btn btn-secondary" id="isActiveModalReject" data-dismiss="modal">No</button>
-		        <button type="button" class="btn btn-primary" id="isActiveModalAccept" data-dismiss="modal">Yes</button>
+		        <button type="button" class="btn btn-secondary" id="is-active-modal-reject" data-dismiss="modal">No</button>
+		        <button type="button" class="btn btn-primary" id="is-active-modal-accept" data-dismiss="modal">Yes</button>
 		      </div>
 		    </div>
 		  </div>
@@ -41,7 +41,9 @@
 
 		<div class="container" style="padding-top:25px">
 			<div class="row align-items-center">
-				<button type="button" class="btn btn-link btn-lg col-lg-4" id="elapsedButton" disabled><h1 class="display-3" id="timeElapsed">0s</h1></button>
+				<button type="button" class="btn btn-link btn-lg col-lg-4" id="elapsed-button" disabled>
+					<h1 class="display-3" id="time-elapsed-header">0s</h1>
+				</button>
 				<button type="button" id="topic" class="btn btn-light btn-lg col-lg-2" disabled>No Topic Selected</button>
 				<div class="col-lg-4">
 					<div class="row justify-content-center">
@@ -58,9 +60,9 @@
 			<hr/>
 
 			<div class="row">
-				<div id="current_details" class="row col-lg-12" style="padding-left:20px;margin-bottom: 20px">
-				    <button type="button" class="btn btn-info btn-lg" id="startTimer" style="margin-right: 20px">Start Timer</button>
-				    <button type="button" class="btn btn-danger btn-lg" id="stopTimer" style="margin-right: 20px">Stop Timer</button>
+				<div id="current-details" class="row col-lg-12" style="padding-left:20px;margin-bottom: 20px">
+				    <button type="button" class="btn btn-info btn-lg" id="start-timer" style="margin-right: 20px">Start Timer</button>
+				    <button type="button" class="btn btn-danger btn-lg" id="stop-timer" style="margin-right: 20px">Stop Timer</button>
 				</div>
 				<div class="col-lg-6">
 					<div id="alerts">
@@ -77,9 +79,9 @@
 							<div class="btn-group row col-12 dropright" role="group" aria-label="Topic Example">
 								<button type="button" id="work-template" class="btn btn-light btn-lg col-9 topicButton" style="margin-top:10px">Template</button>
 								<button role="button" id="more-actions" class="btn btn-light btn-lg col-1" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
-								  <div class="dropdown-menu" aria-labelledby="more-actions">
-								    <a class="dropdown-item" href="#" id="deleteTopic">Delete</a>
-								  </div>
+								<div class="dropdown-menu" aria-labelledby="more-actions">
+									<a class="dropdown-item" href="#" id="delete-topic">Delete</a>
+								</div>
 								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-2" disabled>0s</button>
 							</div>
 						</div>
@@ -88,28 +90,36 @@
 						</div>
 
 						<div class="input-group input-group-lg mb-3 col-lg-12" style="margin-top:20px">
-						  <input id="list_submit" type="text" class="form-control" aria-label="Work Example" placeholder="Add new work item">
+						  <input id="list-submit" type="text" class="form-control" aria-label="Work Example" placeholder="Add new work item">
 						  <div class="input-group-append">
-						    <button class="btn btn-outline-primary" type="button" id="createWorkItem">Create</button>
+						    <button class="btn btn-outline-primary" type="button" id="create-work-item">Create</button>
 						  </div>
 						</div>
 					</div>
 
 					<div id="save" class="row" style="margin-top: 20px">
-						<label class="btn btn-primary" id="save_button" style="margin-left:20px">
+						<label class="btn btn-primary" id="save-button" style="margin-left:20px">
 						    Export to file
 						</label>
 					    <a href="" id="file_download" hidden></a>
 					    <label class="btn btn-dark" style="margin-left:20px">
-						    Import from file <input type="file" id="import_button" hidden>
+						    Import from file <input type="file" id="import-button" hidden>
 						</label>
 					</div>
 				</div>
 				<div class="col-lg-6 row justify-content-center">
-					<h2 style="padding-left:15px" class="col-lg-12">Work History</h2>
-					<li class="list-group-item" id="event-template">Item</li>
-					<ul class="list-group list-group-flush col-lg-12" id="event-items">
-					</ul>
+					<div class="col-lg-12 row">
+						<h2 style="padding-left:15px" class="col-lg-6">Work History</h2>
+						<div class="col-lg-6">
+							<button role="button" class="btn btn-light" id="hide-events">Hide</button>
+							<button role="button" class="btn btn-light" id="show-events">Show</button>
+						</div>
+					</div>
+					<div class="col-lg-12">
+						<li class="list-group-item" id="event-template">Item</li>
+						<ul class="list-group list-group-flush col-lg-12" id="event-items">
+						</ul>
+					</div>
 				</div>
 			</div>
 		</div>
