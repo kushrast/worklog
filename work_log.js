@@ -38,8 +38,8 @@ function hideTemplates() {
 	$("#template").hide();
 	$("#alert-template").hide();
 	$("#event-template").hide();
-	$("#showEvents").hide();
-	$("#stopTimer").hide();
+	$("#show-events").hide();
+	$("#stop-timer").hide();
 }
 
 /* Pull data from storage when page first loads */
@@ -56,17 +56,19 @@ function setupStorage() {
 
 	activeTopicId = localStorage.getItem("activeID");
 
-	if (localStorage.getItem("startedTime") != "" && localStorage.getItem("startedTime") != null) {
-		startedTime = Date.parse(localStorage.getItem("startedTime"));
-	}
+	if (activeTopicId != "") {
+		if (localStorage.getItem("startedTime") != "" && localStorage.getItem("startedTime") != null) {
+			startedTime = Date.parse(localStorage.getItem("startedTime"));
+		}
 
-	updateTickers = false;
-	if (localStorage.getItem("timerActive") == "true") {
-		timerActive = true;
-	}
+		updateTickers = false;
+		if (localStorage.getItem("timerActive") == "true") {
+			timerActive = true;
+		}
 
-	if (timerActive) {
-		checkIfActive();
+		if (timerActive) {
+			checkIfActive();
+		}
 	}
 }
 
@@ -79,7 +81,7 @@ function startClock() {
 function render() {
 	if (activeTopicId != "" && activeTopicId != null) {
 		document.title = "Work Log - " + topics[activeTopicId].name;
-		$("#timeElapsed").html(formatCounter(topics[activeTopicId].time));
+		$("#time-elapsed-header").html(formatCounter(topics[activeTopicId].time));
 	}
 	renderTopics();
 	renderEvents();
@@ -111,16 +113,16 @@ function hideEvents() {
 	show_events = false;
 	renderEvents();
 
-	$("#hideEvents").hide();
-	$("#showEvents").show();
+	$("#hide-events").hide();
+	$("#show-events").show();
 }
 
 function showEvents() {
 	show_events = true;
 	renderEvents();
 
-	$("#hideEvents").show();
-	$("#showEvents").hide();
+	$("#hide-events").show();
+	$("#show-events").hide();
 }
 
 /* Recreates the events list. Only shows the latest 10 events. */
@@ -144,20 +146,19 @@ function renderEvents() {
 /* Attaches button listeners */
 function attachListeners() {
 	$("body").on('click', '.topicButton', selectTopic);
-	$("body").on('click', '#deleteTopic', deleteTopic);
-	$("body").on('click', '#startTimer', startTimer);
-	$("body").on('click', '#stopTimer', stopTimer);
-	$("body").on('click', '#startTimer', startTimer);
-	$("body").on('click', '#save_button', save_data);
+	$("body").on('click', '#delete-topic', deleteTopic);
+	$("body").on('click', '#start-timer', startTimer);
+	$("body").on('click', '#stop-timer', stopTimer);
+	$("body").on('click', '#save-button', save_data);
 	$("body").on('click', '#clear-data', clearData);
-	$("body").on('click', '#isActiveModalReject', modalReject);
-	$("body").on('click', '#isActiveModalAccept', modalAccept);
-	$("body").on('click', '#hideEvents', hideEvents);
-	$("body").on('click', '#showEvents', showEvents);
+	$("body").on('click', '#is-active-modal-reject', modalReject);
+	$("body").on('click', '#is-active-modal-accept', modalAccept);
+	$("body").on('click', '#hide-events', hideEvents);
+	$("body").on('click', '#show-events', showEvents);
 
-	$("#import_button").change(import_data);
+	$("#import-button").change(import_data);
 
-	$("#list_submit").on('keypress', function(e) {
+	$("#list-submit").on('keypress', function(e) {
 	if (e.which == 13) {
 
 		var id = addNewTopic($(this).val());
@@ -166,9 +167,9 @@ function attachListeners() {
 		render();
 	}
 
-	$("body").on('click', '#createWorkItem', function() {
-		addNewTopic($("#list_submit").val());
-		$("#list_submit").val("");
+	$("body").on('click', '#create-work-item', function() {
+		addNewTopic($("#list-submit").val());
+		$("#list-submit").val("");
 		render();
 	});
 });
@@ -208,7 +209,7 @@ function updateTimer(current_time) {
 	 	var timeSeconds = previousTimeTally + timeElapsed;
 	 	var timeString = formatCounter(timeSeconds);
 
-	 	$("#timeElapsed").html(timeString);
+	 	$("#time-elapsed-header").html(timeString);
 	 	$("#time-elapsed-"+activeTopicId).html(timeString);
 	 }
 }
@@ -255,11 +256,11 @@ function stopTimerUtils(timeElapsed, time) {
 		var eventString = `Stopped working on '${topics[activeTopicId].name}' at ${time}`;
 		pushEvent(eventString);
 
-		$("#elapsedButton").prop("disabled", true);
+		$("#elapsed-button").prop("disabled", true);
 		$("#topic").removeClass("btn-outline-primary").addClass("btn-light");
 		$("#time-elapsed-"+activeTopicId).prop("disabled", true);
-		$("#stopTimer").hide();
-		$("#startTimer").show();
+		$("#stop-timer").hide();
+		$("#start-timer").show();
 		
 		setActiveTopic();
 
@@ -271,7 +272,7 @@ function stopTimerUtils(timeElapsed, time) {
 /* Loads timer information */
 function loadTimer() {
 	previousTimeTally = topics[activeTopicId].time;
-	$("#timeElapsed").html(formatCounter(previousTimeTally));
+	$("#time-elapsed-header").html(formatCounter(previousTimeTally));
 	$("#time-elapsed-"+activeTopicId).html(formatCounter(previousTimeTally));
 }
 
@@ -286,7 +287,7 @@ function startTimer() {
 		var eventString = `Started working on '${topics[activeTopicId].name}' at ${time}`;
 		pushEvent(eventString);
 
-		$("#elapsedButton").prop("disabled", false);
+		$("#elapsed-button").prop("disabled", false);
 		$("#topic").removeClass("btn-light").addClass("btn-outline-primary");
 		$("#time-elapsed-"+activeTopicId).prop("disabled", false);
 		
@@ -294,8 +295,8 @@ function startTimer() {
 
 		timeoutVar = setTimeout(checkIfActive, MODAL_TIME_CONSTANT);
 
-		$("#stopTimer").show();
-		$("#startTimer").hide();
+		$("#stop-timer").show();
+		$("#start-timer").hide();
 
 		localStorage.setItem("startedTime", startedTime);
 		localStorage.setItem("timerActive", true);
@@ -307,14 +308,14 @@ function checkIfActive() {
 	timestampAtAlert = time;
 	updateTickers = false;
 
-	$("#elapsedButton").prop("disabled", true);
+	$("#elapsed-button").prop("disabled", true);
 	$("#topic").removeClass("btn-outline-primary").addClass("btn-light");
 	$("#time-elapsed-"+activeTopicId).prop("disabled", true);
-	$("#stopTimer").hide();
-	$("#startTimer").show();
+	$("#stop-timer").hide();
+	$("#start-timer").show();
 
-	$('#isActiveModalLabel').html("Are you still working on '" + topics[activeTopicId].name + "'?");
-	$('#isActiveModal').modal();
+	$('#is-active-modal-label').html("Are you still working on '" + topics[activeTopicId].name + "'?");
+	$('#is-active-modal').modal();
 }
 
 function modalReject() {
@@ -322,11 +323,11 @@ function modalReject() {
 }
 
 function modalAccept() {
-	$("#elapsedButton").prop("disabled", false);
+	$("#elapsed-button").prop("disabled", false);
 	$("#topic").removeClass("btn-light").addClass("btn-outline-primary");
 	$("#time-elapsed-"+activeTopicId).prop("disabled", false);
-	$("#stopTimer").show();
-	$("#startTimer").hide();
+	$("#stop-timer").show();
+	$("#start-timer").hide();
 
 	updateTickers = true;
 	timeoutVar = setTimeout(checkIfActive, MODAL_TIME_CONSTANT);
