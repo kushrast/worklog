@@ -149,14 +149,14 @@ function attachListeners() {
 	$("body").on('click', '#delete-topic', deleteTopic);
 	$("body").on('click', '#start-timer', startTimer);
 	$("body").on('click', '#stop-timer', stopTimer);
-	$("body").on('click', '#save-button', save_data);
+	$("body").on('click', '#save-button', saveData);
 	$("body").on('click', '#clear-data', clearData);
 	$("body").on('click', '#is-active-modal-reject', modalReject);
 	$("body").on('click', '#is-active-modal-accept', modalAccept);
 	$("body").on('click', '#hide-events', hideEvents);
 	$("body").on('click', '#show-events', showEvents);
 
-	$("#import-button").change(import_data);
+	$("#import-button").change(importData);
 
 	$("#list-submit").on('keypress', function(e) {
 	if (e.which == 13) {
@@ -433,7 +433,7 @@ function clearData() {
 	location.reload();
 }
 
-function save_data() {
+function saveData() {
 	var new_events = events.slice(0);
 
 	if (timerActive) {
@@ -448,7 +448,7 @@ function save_data() {
 	$("#file_download")[0].click();
 }
 
-function import_data(event) {
+function importData(event) {
 	var reader = new FileReader();
 	var f = event.target.files[0];
     // Closure to capture the file information.
