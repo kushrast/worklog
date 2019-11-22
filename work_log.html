@@ -75,7 +75,7 @@
 					</div>
 
 					<div id="work_items" class="row" style="padding-left:20px">
-						<div class="row workTopic col-12" id="template">
+						<div class="row workTopic col-12" id="template" style="padding-top: 10px">
 							<div class="btn-group row col-12 dropright" role="group" aria-label="Topic Example">
 								<button type="button" id="work-template" class="btn btn-light btn-lg col-9 topicButton" style="margin-top:10px">Template</button>
 								<button role="button" id="more-actions" class="btn btn-light btn-lg col-1" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
@@ -83,6 +83,12 @@
 									<a class="dropdown-item" href="#" id="delete-topic">Delete</a>
 								</div>
 								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-2" disabled>0s</button>
+								<div class="input-group col-lg-10" style="margin-top:5px;padding-left: 0px" id="time-note-group">
+								  <input id="add-time-note" type="text" class="form-control" aria-label="Note" placeholder="Add a note for this topic">
+								  <div class="input-group-append">
+								    <button class="btn btn-secondary" type="button" id="submit-note">Add</button>
+								  </div>
+								</div>
 							</div>
 						</div>
 						<h2 style="padding-left:15px">Work Items</h2>
@@ -107,18 +113,22 @@
 						</label>
 					</div>
 				</div>
-				<div class="col-lg-6 row justify-content-center">
-					<div class="col-lg-12 row">
-						<h2 style="padding-left:15px" class="col-lg-6">Work History</h2>
-						<div class="col-lg-6">
-							<button role="button" class="btn btn-light" id="hide-events">Hide</button>
-							<button role="button" class="btn btn-light" id="show-events">Show</button>
+				<div class="col-lg-6 justify-content-center">
+					<div class="card">
+					  <div class="card-body">
+					  	<div class="col-lg-12 row">
+							<h2 style="padding-left:15px" class="col-lg-6">Work History</h2>
+							<div class="col-lg-6">
+								<button role="button" class="btn btn-light" id="hide-events">Hide</button>
+								<button role="button" class="btn btn-light" id="show-events">Show</button>
+							</div>
 						</div>
-					</div>
-					<div class="col-lg-12">
-						<li class="list-group-item" id="event-template">Item</li>
-						<ul class="list-group list-group-flush col-lg-12" id="event-items">
-						</ul>
+						<div class="col-lg-12">
+							<li class="list-group-item" id="event-template">Item</li>
+							<ul class="list-group list-group-flush" id="event-items"  class="pre-scrollable" style="max-height:370px;overflow-y:scroll">
+							</ul>
+						</div>
+					  </div>
 					</div>
 				</div>
 			</div>
