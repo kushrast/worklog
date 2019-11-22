@@ -73,7 +73,7 @@
 					</div>
 
 					<div id="work_items" class="row" style="padding-left:20px">
-						<div class="row workTopic col-12" id="template">
+						<div class="row workTopic col-12" id="template" style="padding-top: 10px">
 							<div class="btn-group row col-12 dropright" role="group" aria-label="Topic Example">
 								<button type="button" id="work-template" class="btn btn-light btn-lg col-9 topicButton" style="margin-top:10px">Template</button>
 								<button role="button" id="more-actions" class="btn btn-light btn-lg col-1" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
@@ -81,6 +81,12 @@
 								    <a class="dropdown-item" href="#" id="deleteTopic">Delete</a>
 								  </div>
 								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-2" disabled>0s</button>
+								<div class="input-group col-lg-10" style="margin-top:5px;padding-left: 0px" id="time-note-group">
+								  <input id="add-time-note" type="text" class="form-control" aria-label="Note" placeholder="Add a note for this topic">
+								  <div class="input-group-append">
+								    <button class="btn btn-secondary" type="button" id="submit-note">Add</button>
+								  </div>
+								</div>
 							</div>
 						</div>
 						<h2 style="padding-left:15px">Work Items</h2>
