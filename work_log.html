@@ -113,18 +113,22 @@
 						</label>
 					</div>
 				</div>
-				<div class="col-lg-6 row justify-content-center">
-					<div class="col-lg-12 row">
-						<h2 style="padding-left:15px" class="col-lg-6">Work History</h2>
-						<div class="col-lg-6">
-							<button role="button" class="btn btn-light" id="hide-events">Hide</button>
-							<button role="button" class="btn btn-light" id="show-events">Show</button>
+				<div class="col-lg-6 justify-content-center">
+					<div class="card">
+					  <div class="card-body">
+					  	<div class="col-lg-12 row">
+							<h2 style="padding-left:15px" class="col-lg-6">Work History</h2>
+							<div class="col-lg-6">
+								<button role="button" class="btn btn-light" id="hide-events">Hide</button>
+								<button role="button" class="btn btn-light" id="show-events">Show</button>
+							</div>
 						</div>
-					</div>
-					<div class="col-lg-12">
-						<li class="list-group-item" id="event-template">Item</li>
-						<ul class="list-group list-group-flush col-lg-12" id="event-items">
-						</ul>
+						<div class="col-lg-12">
+							<li class="list-group-item" id="event-template">Item</li>
+							<ul class="list-group list-group-flush" id="event-items"  class="pre-scrollable" style="max-height:370px;overflow-y:scroll">
+							</ul>
+						</div>
+					  </div>
 					</div>
 				</div>
 			</div>
