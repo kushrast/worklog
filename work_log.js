@@ -133,9 +133,9 @@ function renderEvents() {
 
 	if (show_events) {
 		var i = 0;
-		if (eventsLogList.length > 10) {
-			i = eventsLogList.length - 10;
-		}
+		// if (eventsLogList.length > 10) {
+		// 	i = eventsLogList.length - 10;
+		// }
 		for (;i < eventsLogList.length; i++) {
 			var eventsListItem = $("#event-template").clone();
 			eventsListItem.html(eventsLogList[i]);
@@ -143,6 +143,7 @@ function renderEvents() {
 			eventsListItem.show();
 		}
 	}
+		$("#event-items").scrollTop($("#event-items")[0].scrollHeight);
 }
 
 /* Attaches button listeners */
@@ -272,7 +273,7 @@ function stopTimerUtils(timeElapsed, time) {
 		topicsDictionary[selectedTopicID].time = previousSessionsTimeElapsedSeconds;
 		currSessionTimeElapsedSeconds = 0;
 
-		var eventString = `[${currTimeFormatted}] Stopped working on '${topicsDictionary[selectedTopicID].name}'`;
+		var eventString = `Stopped working on '${topicsDictionary[selectedTopicID].name}'`;
 		pushEvent(eventString);
 
 		$("#elapsed-button").prop("disabled", true);
@@ -304,7 +305,7 @@ function startTimer() {
 		workStartedTimestamp = new Date();
 		isWorkingOnTask = true;
 		shouldUpdateTicker = true;
-		var eventString = `[${currTimeFormatted}] Started working on '${topicsDictionary[selectedTopicID].name}'`;
+		var eventString = `Started working on '${topicsDictionary[selectedTopicID].name}'`;
 		pushEvent(eventString);
 
 		$("#elapsed-button").prop("disabled", false);
@@ -354,7 +355,7 @@ function modalAccept() {
 }
 
 function pushEvent(eventString) {
-	eventsLogList.push(eventString);
+	eventsLogList.push("["+currTimeFormatted+"] "+eventString);
 	renderEvents();
 }
 
@@ -379,7 +380,7 @@ function addNewTopic(topic) {
 
 function addNewNote(noteContent) {
 	if (selectedTopicID != "" && selectedTopicID != null) {
-		eventsLogList.push("["+currTimeFormatted+"] "+topicsDictionary[selectedTopicID].name+": "+noteContent);
+		pushEvent(topicsDictionary[selectedTopicID].name+": "+noteContent);
 	}
 	storeEvents();
 }
