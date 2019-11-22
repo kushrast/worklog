@@ -15,6 +15,8 @@ var timeElapsedAtAlert = 0;
 var timestampAtAlert = "";
 var timeoutVar = null;
 
+var show_events = true;
+
 var MODAL_TIME_CONSTANT = 900000;
 
 $( document ).ready(function() {
@@ -24,8 +26,8 @@ $( document ).ready(function() {
 /* Setup environment when page is first loaded */
 function setupEnvironment() {
 	hideTemplates();
-	setupStorage();
 	startClock();
+	setupStorage();
 	render();
 	attachListeners();
 	checkFileAPI();
@@ -36,6 +38,7 @@ function hideTemplates() {
 	$("#template").hide();
 	$("#alert-template").hide();
 	$("#event-template").hide();
+	$("#showEvents").hide();
 	$("#stopTimer").hide();
 }
 
@@ -52,6 +55,19 @@ function setupStorage() {
 	}
 
 	activeTopicId = localStorage.getItem("activeID");
+
+	if (localStorage.getItem("startedTime") != "" && localStorage.getItem("startedTime") != null) {
+		startedTime = Date.parse(localStorage.getItem("startedTime"));
+	}
+
+	updateTickers = false;
+	if (localStorage.getItem("timerActive") == "true") {
+		timerActive = true;
+	}
+
+	if (timerActive) {
+		checkIfActive();
+	}
 }
 
 /* Start clock timer */
@@ -61,6 +77,10 @@ function startClock() {
 
 /* Re-render topic and events lists */
 function render() {
+	if (activeTopicId != "" && activeTopicId != null) {
+		document.title = "Work Log - " + topics[activeTopicId].name;
+		$("#timeElapsed").html(formatCounter(topics[activeTopicId].time));
+	}
 	renderTopics();
 	renderEvents();
 }
@@ -74,12 +94,12 @@ function renderTopics() {
 		var topicButton = topicDiv.find("#work-template");
 		var timeElapsed = topicDiv.find("#time-elapsed");
 
+		timeElapsed.html(formatCounter(topics[key].time));
 		topicButton.html(topics[key].name);
 		topicButton.val(topics[key].id);
 		topicButton.attr("id", topics[key].id);
 		topicDiv.attr("id", "work"+topics[key].id);
 		timeElapsed.attr("id", "time-elapsed-"+topics[key].id);
-		timeElapsed.html(topics[key].time);
 		$("#list_items").append(topicDiv);
 		topicDiv.show();
 	}
@@ -87,21 +107,37 @@ function renderTopics() {
 	setActiveTopic();
 }
 
+function hideEvents() {
+	show_events = false;
+	renderEvents();
+
+	$("#hideEvents").hide();
+	$("#showEvents").show();
+}
+
+function showEvents() {
+	show_events = true;
+	renderEvents();
+
+	$("#hideEvents").show();
+	$("#showEvents").hide();
+}
+
 /* Recreates the events list. Only shows the latest 10 events. */
 function renderEvents() {
 	$("#event-items").html("");
 
-	console.log(events);
-	var i = 0;
-	if (events.length > 10) {
-		i = events.length - 10;
-	}
-	for (;i < events.length; i++) {
-		console.log(events[i]);
-		var eventsListItem = $("#event-template").clone();
-		eventsListItem.html(events[i]);
-		$("#event-items").append(eventsListItem);
-		eventsListItem.show();
+	if (show_events) {
+		var i = 0;
+		if (events.length > 10) {
+			i = events.length - 10;
+		}
+		for (;i < events.length; i++) {
+			var eventsListItem = $("#event-template").clone();
+			eventsListItem.html(events[i]);
+			$("#event-items").append(eventsListItem);
+			eventsListItem.show();
+		}
 	}
 }
 
@@ -116,6 +152,8 @@ function attachListeners() {
 	$("body").on('click', '#clear-data', clearData);
 	$("body").on('click', '#isActiveModalReject', modalReject);
 	$("body").on('click', '#isActiveModalAccept', modalAccept);
+	$("body").on('click', '#hideEvents', hideEvents);
+	$("body").on('click', '#showEvents', showEvents);
 
 	$("#import_button").change(import_data);
 
@@ -190,13 +228,12 @@ function formatTimeElement(date) {
 /* Formats the work item timer value depending on length of time worked */
 function formatCounter(timeSeconds) {
  	var timeString;
- 	var elapsedDate = new Date(timeSeconds*1000);
  	if (timeSeconds < 60) {
- 		timeString = elapsedDate.getSeconds() + "s";
+ 		timeString = Math.floor(timeSeconds) + "s";
  	} else if (timeSeconds < 3600) {
- 		timeString = elapsedDate.getMinutes() + "m " + elapsedDate.getSeconds() + "s";
+ 		timeString = Math.floor(timeSeconds / 60) + "m " + Math.floor(timeSeconds % 60) + "s";
  	} else {
- 		timeString = formatTimeElement(elapsedDate);
+ 		timeString = Math.floor(timeSeconds / 3600) + "h " + Math.floor(timeSeconds / 60) + "m " + Math.floor(timeSeconds % 60) + "s";
  	}
 
  	return timeString;
@@ -225,6 +262,8 @@ function stopTimerUtils(timeElapsed, time) {
 		$("#startTimer").show();
 		
 		setActiveTopic();
+
+		localStorage.setItem("timerActive", false);
 	}
 	clearTimeout(timeoutVar);
 }
@@ -233,13 +272,14 @@ function stopTimerUtils(timeElapsed, time) {
 function loadTimer() {
 	previousTimeTally = topics[activeTopicId].time;
 	$("#timeElapsed").html(formatCounter(previousTimeTally));
-	$("#time-elapsed-"+activeTopicId).html(previousTimeTally);
+	$("#time-elapsed-"+activeTopicId).html(formatCounter(previousTimeTally));
 }
 
 /* Starts the timer (if stopped) */
 function startTimer() {
 	if (!timerActive) {
 		timeElapsed = 0;
+		loadTimer();
 		startedTime = new Date();
 		timerActive = true;
 		updateTickers = true;
@@ -256,6 +296,9 @@ function startTimer() {
 
 		$("#stopTimer").show();
 		$("#startTimer").hide();
+
+		localStorage.setItem("startedTime", startedTime);
+		localStorage.setItem("timerActive", true);
 	}
 }
 
@@ -302,11 +345,9 @@ function setTopicAlert(val) {
 /* Adds new Topic to list */
 function addNewTopic(topic) {
 	if (topic != "") {
-		console.log(topic);
 		var topicId = Math.floor(100000 + Math.random() * 900000);
 		topics[topicId] = {id: topicId, name: topic, time: 0};
 
-		console.log(activeTopicId);
 		if (activeTopicId == "" || activeTopicId == null || timerActive == false) {
 			activeTopicId = topicId;
 		}
@@ -348,8 +389,9 @@ function selectTopic() {
 		storeActiveID();
 
 		setActiveTopic();
-		loadTimer();
 		startTimer();
+
+		document.title = "Work Log - " + topics[activeTopicId].name;
 	} else {
 		toggleTimer(!timerActive);
 	}
@@ -364,7 +406,6 @@ function unsetActiveTopic() {
 
 function setActiveTopic() {
 	var activeTopic = $(`#${activeTopicId}`);
-	console.log(activeTopic);
 	activeTopic.removeClass("btn-light").removeClass("btn-danger").removeClass("btn-success");
 
 	if (timerActive) {
