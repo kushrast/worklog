@@ -167,14 +167,31 @@ function attachListeners() {
 
 		$(this).val("");
 		render();
-	}
+		}
+	});
 
 	$("body").on('click', '#create-work-item', function() {
 		addNewTopic($("#list-submit").val());
 		$("#list-submit").val("");
 		render();
 	});
-});
+
+	$("body").on('keypress', "#add-time-note", function(e) {
+	if (e.which == 13) {
+
+		var id = addNewNote($(this).val());
+
+		$(this).val("");
+		render();
+		}
+	});
+
+	$("body").on('click', '#submit-note', function() {
+		var list = $(this).parent().parent().find("#add-time-note");
+		addNewNote(list.val());
+		list.val("");
+		render();
+	});
 }
 
 /* Checks if browser can read files for file import */
@@ -255,7 +272,7 @@ function stopTimerUtils(timeElapsed, time) {
 		topicsDictionary[selectedTopicID].time = previousSessionsTimeElapsedSeconds;
 		currSessionTimeElapsedSeconds = 0;
 
-		var eventString = `Stopped working on '${topicsDictionary[selectedTopicID].name}' at ${time}`;
+		var eventString = `[${currTimeFormatted}] Stopped working on '${topicsDictionary[selectedTopicID].name}'`;
 		pushEvent(eventString);
 
 		$("#elapsed-button").prop("disabled", true);
@@ -287,7 +304,7 @@ function startTimer() {
 		workStartedTimestamp = new Date();
 		isWorkingOnTask = true;
 		shouldUpdateTicker = true;
-		var eventString = `Started working on '${topicsDictionary[selectedTopicID].name}' at ${currTimeFormatted}`;
+		var eventString = `[${currTimeFormatted}] Started working on '${topicsDictionary[selectedTopicID].name}'`;
 		pushEvent(eventString);
 
 		$("#elapsed-button").prop("disabled", false);
@@ -358,6 +375,13 @@ function addNewTopic(topic) {
 		}
 		storeTopics();
 	}
+}
+
+function addNewNote(noteContent) {
+	if (selectedTopicID != "" && selectedTopicID != null) {
+		eventsLogList.push("["+currTimeFormatted+"] "+topicsDictionary[selectedTopicID].name+": "+noteContent);
+	}
+	storeEvents();
 }
 
 function deleteTopic() {
@@ -443,7 +467,7 @@ function saveData() {
 	var new_events = eventsLogList.slice(0);
 
 	if (isWorkingOnTask) {
-		new_events.push(`Stopped working on '${topicsDictionary[selectedTopicID].name}' at ${currTimeFormatted}`);
+		new_events.push(`[${currTimeFormatted}] Stopped working on '${topicsDictionary[selectedTopicID].name}'`);
 	}
 	var file_dump = {"events" : new_events, "topics" : topicsDictionary, "selectedTopicID": selectedTopicID}
 	var blob = new Blob([JSON.stringify(file_dump, null, 2)], {type : 'application/json'});
