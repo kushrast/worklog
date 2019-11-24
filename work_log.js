@@ -391,7 +391,7 @@ function addNewNote(noteContent) {
 }
 
 function deleteTopic() {
-	var topicId = $(this).parent().parent().parent().attr("id").substring(4);
+	var topicId = $(this).parent().parent().attr("id").substring(4);
 	if (selectedTopicID == topicId) {
 		if (isWorkingOnTask) {
 			if (shouldUpdateTicker) {
