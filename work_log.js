@@ -219,18 +219,11 @@ function checkFileAPI() {
 /* Fetches current time and updates timer/clock */
 function clockTick() {
 	var current_time = new Date();
+	 currTimeFormatted = formatTimeElement(current_time);
 
 	updateTimer(current_time);
-	updateClock(current_time);
 	setTimeout(clockTick, 500);
 }
-
-/* Updates Main Clock */
-function updateClock(current_time) {
-	 currTimeFormatted = formatTimeElement(current_time);
-	 $("#time").html(`Time: ${currTimeFormatted}`);
-}
-
 /* Updates Work Item Timer */
 function updateTimer(current_time) {
 	if (isWorkingOnTask && shouldUpdateTicker) {
@@ -391,13 +384,27 @@ function addNewTopic(topic) {
 function addNewNote(noteContent) {
 	if (selectedTopicID != "" && selectedTopicID != null) {
 		pushEvent(topicsDictionary[selectedTopicID].name+": "+noteContent);
+	} else {
+		pushEvent("No Topic: "+noteContent);
 	}
 	storeEvents();
 }
 
 function deleteTopic() {
 	var topicId = $(this).parent().parent().parent().attr("id").substring(4);
-	setTimeout(deleteUtils, 500, topicId);
+	if (selectedTopicID == topicId) {
+		if (isWorkingOnTask) {
+			if (shouldUpdateTicker) {
+				stopTimer();
+			} else {
+				stopTimerUtils(timeElapsedAtAlert, timestampAtAlert);
+			}
+		}
+		selectedTopicID = "";
+	}
+	delete topicsDictionary[topicId];
+	storeTopics()
+	renderTopics();
 }
 
 function editTopic() {
@@ -415,22 +422,6 @@ function changeTopicName(element) {
 	topicsDictionary[topicId].name = newName;
 
 	storeTopics();
-}
-
-function deleteUtils(topicId) {
-	if (selectedTopicID == topicId) {
-		if (isWorkingOnTask) {
-			if (shouldUpdateTicker) {
-				stopTimer();
-			} else {
-				stopTimerUtils(timeElapsedAtAlert, timestampAtAlert);
-			}
-		}
-		selectedTopicID = "";
-	}
-	delete topicsDictionary[topicId];
-	storeTopics()
-	renderTopics();
 }
 
 /* Selects a topic to be active (may be the current active topic) */
@@ -459,12 +450,10 @@ function selectTopic() {
 
 function unsetActiveTopic() {
 	$(`#${selectedTopicID}`).removeClass("btn-success").removeClass("btn-danger").addClass("btn-light");
-	$(`#${selectedTopicID}`).parent().find("#time-note-group").hide();
 }
 
 function setActiveTopic() {
 	var activeTopic = $(`#${selectedTopicID}`);
-	activeTopic.parent().find("#time-note-group").show();
 	activeTopic.removeClass("btn-light").removeClass("btn-danger").removeClass("btn-success");
 
 	if (isWorkingOnTask) {
