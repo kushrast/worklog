@@ -17,7 +17,15 @@
 		    cursor: pointer;
 		}
 	</style>
-
+	<link rel="icon" href="favicon.png">
+	<head>
+		<nav class="navbar navbar-dark"  style="background-color: #5eb7b7;">
+		  <a class="navbar-brand" href="#">
+		    <img src="logo.png" height="28" class="d-inline-block align-top" alt="">
+		    Suspend
+		  </a>
+		</nav>
+	</head>
 	<body>
 		<div class="modal fade" id="is-active-modal" tabindex="-1" role="dialog" aria-labelledby="is-active-modal-label" aria-hidden="true">
 		  <div class="modal-dialog" role="document">
@@ -39,31 +47,37 @@
 		  </div>
 		</div>
 
-		<div class="container" style="padding-top:25px">
-			<div class="row align-items-center">
-				<button type="button" class="btn btn-link btn-lg col-lg-4" id="elapsed-button" disabled>
-					<h1 class="display-3" id="time-elapsed-header">0s</h1>
-				</button>
-				<button type="button" id="topic" class="btn btn-light btn-lg col-lg-2" disabled>No Topic Selected</button>
-				<div class="col-lg-4">
-					<div class="row justify-content-center">
-						<h5 id="time">
-							Time: ${time}
-						</h5>
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="card col-lg-8" style="margin-top:20px;margin-bottom:20px;margin-right: 5px;margin-left: 5px">
+					<div class="card-header row align-items-center justify-content-center" style="padding-top: 0px;padding-bottom: 0px">
+						<div id="current-details" class="col-3">
+						    <button type="button" class="btn btn-info" id="start-timer">Start Timer</button>
+						    <button type="button" class="btn btn-danger" id="stop-timer">Stop Timer</button>
+						</div>
+						<button type="button" class="btn btn-link col-5" id="elapsed-button" disabled style="padding-top: 0px;padding-bottom: 0px">
+							<h1 class="display-4" id="time-elapsed-header" style="padding-top: 0px;padding-bottom: 0px">0s</h1>
+						</button>
+						<button type="button" id="topic" class="btn btn-light col-4" disabled>No Topic Selected</button>
 					</div>
-				</div>
-				<div class="col-lg-2">
-					<button type="button" class="btn btn-info" id="clear-data">Clear Data</button>
 				</div>
 			</div>
 
-			<hr/>
+			<div class="row justify-content-center">
+				<label class="btn btn-info" id="clear-data" style="margin-left:20px">
+				    Clear Data
+				</label>
+			    <a href="" id="file_download" hidden></a>
+				<label class="btn btn-primary" id="save-button" style="margin-left:20px">
+				    Export to file
+				</label>
+			    <a href="" id="file_download" hidden></a>
+			    <label class="btn btn-dark" style="margin-left:20px">
+				    Import from file <input type="file" id="import-button" hidden>
+				</label>
+			</div>
 
 			<div class="row">
-				<div id="current-details" class="row col-lg-12" style="padding-left:20px;margin-bottom: 20px">
-				    <button type="button" class="btn btn-info btn-lg" id="start-timer" style="margin-right: 20px">Start Timer</button>
-				    <button type="button" class="btn btn-danger btn-lg" id="stop-timer" style="margin-right: 20px">Stop Timer</button>
-				</div>
 				<div class="col-lg-6">
 					<div id="alerts">
 						<div class="alert alert-info alert-dismissible fade show" role="alert" id="alert-template">
@@ -75,8 +89,8 @@
 					</div>
 
 					<div id="work_items" class="row" style="padding-left:20px">
-						<div class="row workTopic col-12 card" id="template" style="margin-top: 10px">
-							<div class="btn-group row col-12 dropright card-body" role="group" aria-label="Topic Example" style="padding-top:10px;padding-bottom: 20px">
+						<div class="row workTopic col-12" id="template" style="margin-top: 10px">
+							<div class="btn-group row col-12 dropright" role="group" aria-label="Topic Example">
 								<button type="button" id="work-template" class="btn btn-light btn-lg col-9 topicButton" style="margin-top:10px">Template</button>
 								<button role="button" id="more-actions" class="btn btn-light btn-lg col-1" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
 								<div class="dropdown-menu" aria-labelledby="more-actions">
@@ -85,12 +99,6 @@
 								</div>
 								<input id="edit-topic-input" class="form-control input-lg col-10" style="margin-top:10px" placeholder="Edit Topic Name">
 								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-2" disabled>0s</button>
-								<div class="input-group col-lg-10" style="margin-top:5px;padding-left: 0px" id="time-note-group">
-								  <input id="add-time-note" type="text" class="form-control" aria-label="Note" placeholder="Add a note for this topic">
-								  <div class="input-group-append">
-								    <button class="btn btn-secondary" type="button" id="submit-note">Add</button>
-								  </div>
-								</div>
 							</div>
 						</div>
 						<h2 style="padding-left:15px">Work Items</h2>
@@ -103,16 +111,6 @@
 						    <button class="btn btn-outline-primary" type="button" id="create-work-item">Create</button>
 						  </div>
 						</div>
-					</div>
-
-					<div id="save" class="row" style="margin-top: 20px">
-						<label class="btn btn-primary" id="save-button" style="margin-left:20px">
-						    Export to file
-						</label>
-					    <a href="" id="file_download" hidden></a>
-					    <label class="btn btn-dark" style="margin-left:20px">
-						    Import from file <input type="file" id="import-button" hidden>
-						</label>
 					</div>
 				</div>
 				<div class="col-lg-6 justify-content-center">
@@ -130,10 +128,17 @@
 							<ul class="list-group list-group-flush" id="event-items"  class="pre-scrollable" style="max-height:370px;overflow-y:scroll">
 							</ul>
 						</div>
+						<div class="input-group col-lg-12" style="padding-top: 10px" id="time-note-group">
+						  <input id="add-time-note" type="text" class="form-control" aria-label="Note" placeholder="Add a status update">
+						  <div class="input-group-append">
+						    <button class="btn btn-secondary" type="button" id="submit-note">Add</button>
+						  </div>
+						</div>
 					  </div>
 					</div>
 				</div>
 			</div>
+		</div>
 		</div>
 		<!-- JS -->
 		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
