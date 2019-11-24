@@ -75,13 +75,15 @@
 					</div>
 
 					<div id="work_items" class="row" style="padding-left:20px">
-						<div class="row workTopic col-12" id="template" style="padding-top: 10px">
-							<div class="btn-group row col-12 dropright" role="group" aria-label="Topic Example">
+						<div class="row workTopic col-12 card" id="template" style="margin-top: 10px">
+							<div class="btn-group row col-12 dropright card-body" role="group" aria-label="Topic Example" style="padding-top:10px;padding-bottom: 20px">
 								<button type="button" id="work-template" class="btn btn-light btn-lg col-9 topicButton" style="margin-top:10px">Template</button>
 								<button role="button" id="more-actions" class="btn btn-light btn-lg col-1" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
 								<div class="dropdown-menu" aria-labelledby="more-actions">
 									<a class="dropdown-item" href="#" id="delete-topic">Delete</a>
+									<a class="dropdown-item" href="#" id="edit-topic">Edit Name</a>
 								</div>
+								<input id="edit-topic-input" class="form-control input-lg col-10" style="margin-top:10px" placeholder="Edit Topic Name">
 								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-2" disabled>0s</button>
 								<div class="input-group col-lg-10" style="margin-top:5px;padding-left: 0px" id="time-note-group">
 								  <input id="add-time-note" type="text" class="form-control" aria-label="Note" placeholder="Add a note for this topic">
