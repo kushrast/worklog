@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>
+		Work Log
+		</title>
+		<link rel="icon" href="img/favicon.png">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<style>
+			input[type="file"] {
+			    display: none;
+			}
+			.custom-file-upload {
+			    border: 1px solid #ccc;
+			    display: inline-block;
+			    padding: 6px 12px;
+			    cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
+		<nav class="navbar navbar-dark"  style="background-color: #5eb7b7;">
+		  <a class="navbar-brand" href="#">
+		    <img src="img/logo.png" height="35" class="d-inline-block align-top" alt="">
+		    Suspend
+		  </a>
+		</nav>
+		<div class="modal fade" id="is-active-modal" tabindex="-1" role="dialog" aria-labelledby="is-active-modal-label" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="is-active-modal-label">Are you still working?</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body" id="is-active-modal-body">
+		        Just checking in!
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" id="is-active-modal-reject" data-dismiss="modal">No</button>
+		        <button type="button" class="btn btn-primary" id="is-active-modal-accept" data-dismiss="modal">Yes</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="card col-lg-8" style="margin-top:20px;margin-bottom:20px;margin-right: 5px;margin-left: 5px">
+					<div class="card-header row align-items-center justify-content-center" style="padding-top: 0px;padding-bottom: 0px">
+						<div id="current-details" class="col-3">
+						    <button type="button" class="btn btn-info" id="start-timer">Start Timer</button>
+						    <button type="button" class="btn btn-danger" id="stop-timer">Stop Timer</button>
+						</div>
+						<button type="button" class="btn btn-link col-5" id="elapsed-button" disabled style="padding-top: 0px;padding-bottom: 0px">
+							<h1 class="display-4" id="time-elapsed-header" style="padding-top: 0px;padding-bottom: 0px">0s</h1>
+						</button>
+						<button type="button" id="topic" class="btn btn-light col-4" disabled>No Topic Selected</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="row justify-content-center">
+				<label class="btn btn-info" id="clear-data" style="margin-left:20px">
+				    Clear Data
+				</label>
+			    <a href="" id="file_download" hidden></a>
+				<label class="btn btn-primary" id="save-button" style="margin-left:20px">
+				    Export to file
+				</label>
+			    <a href="" id="file_import" hidden></a>
+			    <label class="btn btn-dark" style="margin-left:20px">
+				    Import from file <input type="file" id="import-button" hidden>
+				</label>
+			</div>
+
+			<div class="row">
+				<div class="col-lg-6">
+					<div id="alerts">
+						<div class="alert alert-info alert-dismissible fade show" role="alert" id="alert-template">
+						  Loaded data from file
+						  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						    <span aria-hidden="true">&times;</span>
+						  </button>
+						</div>
+					</div>
+
+					<div id="work_items" class="row" style="padding-left:20px">
+						<div class="row workTopic col-12 btn-group dropright" role="group" id="template" style="margin-top: 10px">
+								<button type="button" id="work-template" class="btn btn-light btn-lg col-8 topicButton" style="margin-top:10px">Template</button>
+								<button type="button" id="more-actions" class="btn btn-light btn-lg col-1" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
+								<div class="dropdown-menu" aria-labelledby="more-actions">
+									<a class="dropdown-item" href="#" id="delete-topic">Delete</a>
+									<a class="dropdown-item" href="#" id="edit-topic">Edit Name</a>
+								</div>
+								<input id="edit-topic-input" class="form-control input-lg col-9" style="margin-top:10px" placeholder="Edit Topic Name">
+								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-3" disabled>0s</button>
+						</div>
+						<h2 style="padding-left:15px">Work Items</h2>
+						<div class="col-lg-12" id="list_items" style="margin-right: 20px">
+						</div>
+
+						<div class="input-group input-group-lg mb-3 col-lg-12" style="margin-top:20px">
+						  <input id="list-submit" type="text" class="form-control" aria-label="Work Example" placeholder="Add new work item">
+						  <div class="input-group-append">
+						    <button class="btn btn-outline-primary" type="button" id="create-work-item">Create</button>
+						  </div>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-6 justify-content-center">
+					<div class="card">
+					  <div class="card-body">
+					  	<div class="col-lg-12 row">
+							<h2 style="padding-left:15px" class="col-lg-6">Work History</h2>
+							<div class="col-lg-6">
+								<button type="button" class="btn btn-light" id="hide-events">Hide</button>
+								<button type="button" class="btn btn-light" id="show-events">Show</button>
+							</div>
+						</div>
+						<div class="col-lg-12">
+							<li class="list-group-item" id="event-template">Item</li>
+							<ul class="list-group list-group-flush pre-scrollable" id="event-items" style="max-height:370px;overflow-y:scroll">
+							</ul>
+						</div>
+						<div class="input-group col-lg-12" style="padding-top: 10px" id="time-note-group">
+						  <input id="add-time-note" type="text" class="form-control" aria-label="Note" placeholder="Add a status update">
+						  <div class="input-group-append">
+						    <button class="btn btn-secondary" type="button" id="submit-note">Add</button>
+						  </div>
+						</div>
+					  </div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- JS -->
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+		<script src="js/src/work_log.js"></script>
+	</body>
+</html>
