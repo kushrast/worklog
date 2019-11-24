@@ -103,6 +103,7 @@ function renderTopics() {
 		topicButton.attr("id", topicsDictionary[key].id);
 		topicDiv.attr("id", "work"+topicsDictionary[key].id);
 		timeElapsed.attr("id", "time-elapsed-"+topicsDictionary[key].id);
+		topicDiv.find("#edit-topic-input").hide();
 		topicDiv.find("#time-note-group").hide();
 		$("#list_items").append(topicDiv);
 		topicDiv.show();
@@ -150,6 +151,7 @@ function renderEvents() {
 function attachListeners() {
 	$("body").on('click', '.topicButton', selectTopic);
 	$("body").on('click', '#delete-topic', deleteTopic);
+	$("body").on('click', '#edit-topic', editTopic);
 	$("body").on('click', '#start-timer', startTimer);
 	$("body").on('click', '#stop-timer', stopTimer);
 	$("body").on('click', '#save-button', saveData);
@@ -183,6 +185,14 @@ function attachListeners() {
 		var id = addNewNote($(this).val());
 
 		$(this).val("");
+		render();
+		}
+	});
+
+	$("body").on('keypress', "#edit-topic-input", function(e) {
+	if (e.which == 13) {
+
+		changeTopicName($(this));
 		render();
 		}
 	});
@@ -388,6 +398,23 @@ function addNewNote(noteContent) {
 function deleteTopic() {
 	var topicId = $(this).parent().parent().parent().attr("id").substring(4);
 	setTimeout(deleteUtils, 500, topicId);
+}
+
+function editTopic() {
+	var topicId = $(this).parent().parent().parent().attr("id").substring(4);
+	$(this).parent().parent().find(".topicButton").hide();
+	$(this).parent().parent().find("#more-actions").hide();
+	$(this).parent().parent().find("#edit-topic-input").show();
+}
+
+function changeTopicName(element) {
+	var topicId = element.parent().find(".topicButton").attr("id");
+	var newName = element.val();
+
+	pushEvent(`Renamed '${topicsDictionary[selectedTopicID].name}' to '${newName}'`)
+	topicsDictionary[topicId].name = newName;
+
+	storeTopics();
 }
 
 function deleteUtils(topicId) {
