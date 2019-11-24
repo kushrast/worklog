@@ -1,32 +1,30 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 	<head>
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-	</head>
-	<title>
+		<title>
 		Work Log
-	</title>
-
-	<style>
-		input[type="file"] {
-		    display: none;
-		}
-		.custom-file-upload {
-		    border: 1px solid #ccc;
-		    display: inline-block;
-		    padding: 6px 12px;
-		    cursor: pointer;
-		}
-	</style>
-	<link rel="icon" href="favicon.png">
-	<head>
+		</title>
+		<link rel="icon" href="favicon.png">
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<style>
+			input[type="file"] {
+			    display: none;
+			}
+			.custom-file-upload {
+			    border: 1px solid #ccc;
+			    display: inline-block;
+			    padding: 6px 12px;
+			    cursor: pointer;
+			}
+		</style>
+	</head>
+	<body>
 		<nav class="navbar navbar-dark"  style="background-color: #5eb7b7;">
 		  <a class="navbar-brand" href="#">
-		    <img src="logo.png" height="28" class="d-inline-block align-top" alt="">
+		    <img src="logo.png" height="35" class="d-inline-block align-top" alt="">
 		    Suspend
 		  </a>
 		</nav>
-	</head>
-	<body>
 		<div class="modal fade" id="is-active-modal" tabindex="-1" role="dialog" aria-labelledby="is-active-modal-label" aria-hidden="true">
 		  <div class="modal-dialog" role="document">
 		    <div class="modal-content">
@@ -71,7 +69,7 @@
 				<label class="btn btn-primary" id="save-button" style="margin-left:20px">
 				    Export to file
 				</label>
-			    <a href="" id="file_download" hidden></a>
+			    <a href="" id="file_import" hidden></a>
 			    <label class="btn btn-dark" style="margin-left:20px">
 				    Import from file <input type="file" id="import-button" hidden>
 				</label>
@@ -89,17 +87,16 @@
 					</div>
 
 					<div id="work_items" class="row" style="padding-left:20px">
-						<div class="row workTopic col-12" id="template" style="margin-top: 10px">
-							<div class="btn-group row col-12 dropright" role="group" aria-label="Topic Example">
-								<button type="button" id="work-template" class="btn btn-light btn-lg col-9 topicButton" style="margin-top:10px">Template</button>
-								<button role="button" id="more-actions" class="btn btn-light btn-lg col-1" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
+						<div class="row workTopic col-12 btn-group dropright" role="group" id="template" style="margin-top: 10px">
+								<button type="button" id="work-template" class="btn btn-light btn-lg col-8 topicButton" style="margin-top:10px">Template</button>
+								<button type="button" id="more-actions" class="btn btn-light btn-lg col-1" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
 								<div class="dropdown-menu" aria-labelledby="more-actions">
 									<a class="dropdown-item" href="#" id="delete-topic">Delete</a>
 									<a class="dropdown-item" href="#" id="edit-topic">Edit Name</a>
 								</div>
-								<input id="edit-topic-input" class="form-control input-lg col-10" style="margin-top:10px" placeholder="Edit Topic Name">
-								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-2" disabled>0s</button>
-							</div>
+								<input id="edit-topic-input" class="form-control input-lg col-9" style="margin-top:10px" placeholder="Edit Topic Name">
+								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-3" disabled>0s</button>
+
 						</div>
 						<h2 style="padding-left:15px">Work Items</h2>
 						<div class="col-lg-12" id="list_items" style="margin-right: 20px">
@@ -119,13 +116,13 @@
 					  	<div class="col-lg-12 row">
 							<h2 style="padding-left:15px" class="col-lg-6">Work History</h2>
 							<div class="col-lg-6">
-								<button role="button" class="btn btn-light" id="hide-events">Hide</button>
-								<button role="button" class="btn btn-light" id="show-events">Show</button>
+								<button type="button" class="btn btn-light" id="hide-events">Hide</button>
+								<button type="button" class="btn btn-light" id="show-events">Show</button>
 							</div>
 						</div>
 						<div class="col-lg-12">
 							<li class="list-group-item" id="event-template">Item</li>
-							<ul class="list-group list-group-flush" id="event-items"  class="pre-scrollable" style="max-height:370px;overflow-y:scroll">
+							<ul class="list-group list-group-flush pre-scrollable" id="event-items" style="max-height:370px;overflow-y:scroll">
 							</ul>
 						</div>
 						<div class="input-group col-lg-12" style="padding-top: 10px" id="time-note-group">
