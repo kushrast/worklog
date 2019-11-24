@@ -348,7 +348,7 @@ function modalReject() {
 
 function modalAccept() {
 	$("#elapsed-button").prop("disabled", false);
-	$("#topic").removeClass("btn-light").addClass("btn-outline-primary");
+	$("#topic").removeClass("btn-light").addClass("btn-outline-primary");s
 	$("#time-elapsed-"+selectedTopicID).prop("disabled", false);
 	$("#stop-timer").show();
 	$("#start-timer").hide();
