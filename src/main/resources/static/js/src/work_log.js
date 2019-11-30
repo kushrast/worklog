@@ -26,6 +26,7 @@ $( document ).ready(function() {
 
 /* Setup environment when page is first loaded */
 function setupEnvironment() {
+	console.log("Setting up Suspend Application");
 	hideTemplates();
 	startClock();
 	setupStorage();
@@ -80,6 +81,7 @@ function startClock() {
 
 /* Re-render topic and events lists */
 function render() {
+	console.log("Re-rendering")
 	if (selectedTopicID != "" && selectedTopicID != null) {
 		document.title = "Work Log - " + topicsDictionary[selectedTopicID].name;
 		$("#time-elapsed-header").html(formatCounter(topicsDictionary[selectedTopicID].time));
@@ -270,6 +272,7 @@ function stopTimer() {
 
 function stopTimerUtils(timeElapsed, time) {
 	if (isWorkingOnTask) {
+		console.log("Stopping Timer");
 		isWorkingOnTask = false;
 		shouldUpdateTicker = false;
 		previousSessionsTimeElapsedSeconds += currSessionTimeElapsedSeconds;
@@ -303,6 +306,7 @@ function loadTimer() {
 /* Starts the timer (if stopped) */
 function startTimer() {
 	if (!isWorkingOnTask) {
+		console.log("Starting timer");
 		currSessionTimeElapsedSeconds = 0;
 		loadTimer();
 		workStartedTimestamp = new Date();
@@ -370,6 +374,7 @@ function setTopicAlert(val) {
 /* Adds new Topic to list */
 function addNewTopic(topic) {
 	if (topic != "") {
+		console.log("Adding new task: " + topic);
 		var topicId = Math.floor(100000 + Math.random() * 900000);
 		topicsDictionary[topicId] = {id: topicId, name: topic, time: 0};
 
@@ -402,6 +407,7 @@ function deleteTopic() {
 		}
 		selectedTopicID = "";
 	}
+	console.log("Deleting topic: " + topicsDictionary[topicId]);
 	delete topicsDictionary[topicId];
 	storeTopics()
 	renderTopics();
@@ -476,11 +482,13 @@ function toggleTimer(state) {
 }
 
 function clearData() {
+	console.log("Cleared Data");
 	localStorage.clear();
 	location.reload();
 }
 
 function saveData() {
+	console.log("Saved Data to file");
 	var new_events = eventsLogList.slice(0);
 
 	if (isWorkingOnTask) {
