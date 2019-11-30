@@ -403,6 +403,7 @@ function deleteTopic() {
 		selectedTopicID = "";
 	}
 	delete topicsDictionary[topicId];
+	setActiveTopic("No Topic Selected");
 	storeTopics()
 	renderTopics();
 }
