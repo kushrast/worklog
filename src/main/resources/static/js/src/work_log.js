@@ -80,7 +80,7 @@ function startClock() {
 
 /* Re-render topic and events lists */
 function render() {
-	if (selectedTopicID != "" && selectedTopicID != null) {
+	if (topicExists(selectedTopicID)) {
 		document.title = "Work Log - " + topicsDictionary[selectedTopicID].name;
 		$("#time-elapsed-header").html(formatCounter(topicsDictionary[selectedTopicID].time));
 	}
@@ -373,7 +373,7 @@ function addNewTopic(topic) {
 		var topicId = Math.floor(100000 + Math.random() * 900000);
 		topicsDictionary[topicId] = {id: topicId, name: topic, time: 0};
 
-		if (selectedTopicID == "" || selectedTopicID == null || isWorkingOnTask == false) {
+		if (!topicExists(selectedTopicID) || isWorkingOnTask == false) {
 			selectedTopicID = topicId;
 			storeSelectedTopicID();
 		}
@@ -382,7 +382,7 @@ function addNewTopic(topic) {
 }
 
 function addNewNote(noteContent) {
-	if (selectedTopicID != "" && selectedTopicID != null) {
+	if (topicExists(selectedTopicID)) {
 		pushEvent(topicsDictionary[selectedTopicID].name+": "+noteContent);
 	} else {
 		pushEvent("No Topic: "+noteContent);
@@ -429,7 +429,7 @@ function changeTopicName(element) {
 function selectTopic() {
 	//Topic is different than existing active topic
 	if (selectedTopicID != $(this).val()) {
-		if (selectedTopicID != null && selectedTopicID != "") {
+		if (topicExists(selectedTopicID)) {
 			stopTimer();
 			unsetActiveTopic();
 		}
@@ -535,6 +535,10 @@ function storeTopics() {
 
 function storeSelectedTopicID() {
 	storeLocalStorage("", "", selectedTopicID);
+}
+
+function topicExists(id) {
+	return id != "" && id != null && topicsDictionary[id] != null;
 }
 
 function storeLocalStorage(eventsLogList="", topicsDictionary="", selectedTopicID="") {
