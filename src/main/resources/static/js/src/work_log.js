@@ -440,14 +440,17 @@ function selectTopic() {
 		if (topicExists(selectedTopicID)) {
 			stopTimer();
 			unsetActiveTopic();
+		}
 
-			selectedTopicID = $(this).val();
-			storeSelectedTopicID();
+		selectedTopicID = $(this).val();
+		storeSelectedTopicID();
 
+		if (topicExists(selectedTopicID)) {
 			setActiveTopic();
 			startTimer();
-
 			document.title = "Work Log - " + getTopicName(selectedTopicID);
+		} else if (selectedTopicID == "break") {
+			console.log("hey");
 		}
 	} else {
 		toggleTimer(!isWorkingOnTask);
