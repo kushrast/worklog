@@ -570,6 +570,10 @@ function strictModeToggle() {
 		procrastinationTimeElapsedSeconds = 0;
 		$("#procrastination-button").removeClass("btn-warning").addClass("btn-light");
 		$(".procrastination-actions").removeClass("btn-warning").addClass("btn-light");
+
+		if (!isWorkingOnTask) {
+			pushEvent("Stopped procrastinating");
+		}
 	}
 
 	localStorage.setItem("procrastinationMode", procrastinationMode);
