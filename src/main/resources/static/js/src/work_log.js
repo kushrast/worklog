@@ -19,6 +19,11 @@ var lastSavedTimestamp = null;
 
 var show_events = true;
 
+var procrastinationMode = false;
+var procrastinationStartTimestamp = null;
+var procrastinationPreviousTimeElapsedSeconds = 0;
+var procrastinationTimeElapsedSeconds = 0;
+
 var MODAL_TIME_CONSTANT = 900000;
 
 $( document ).ready(function() {
@@ -42,6 +47,7 @@ function hideTemplates() {
 	$("#event-template").hide();
 	$("#show-events").hide();
 	$("#stop-timer").hide();
+	$("#procrastination").hide();
 }
 
 /* Pull data from storage when page first loads */
@@ -54,6 +60,8 @@ function setupStorage() {
 	topicsDictionary = JSON.parse(localStorage.getItem("topics"));
 	if (topicsDictionary == null) {
 		topicsDictionary = {};
+		topicsDictionary["break"] = {id: "break", name: "break", time: 0};
+		topicsDictionary["procrastination"] = {id: "procrastination", name: "procrastination", time: 0};
 	}
 
 	selectedTopicID = localStorage.getItem("selectedTopicID");
@@ -71,6 +79,17 @@ function setupStorage() {
 		if (isWorkingOnTask) {
 			checkIfActive();
 		}
+
+		procrastinationMode = localStorage.getItem("procrastinationMode");
+		if (procrastinationMode == null || procrastinationMode == "false") {
+			procrastinationMode = false;
+		} else {
+			procrastinationMode = true;
+		}
+		if (procrastinationMode) {
+			$("#strict-mode-toggle").prop("checked", true);
+		}
+		setupProcrastinationMode();
 	}
 }
 
@@ -95,21 +114,25 @@ function renderTopics() {
 	$("#list_items").html("");
 
 	for (var key in topicsDictionary) {
-		var topicDiv = $("#template").clone();
-		var topicButton = topicDiv.find("#work-template");
-		var timeElapsed = topicDiv.find("#time-elapsed");
+		if (key != "break" && key != "procrastination") {
+			var topicDiv = $("#template").clone();
+			var topicButton = topicDiv.find("#work-template");
+			var timeElapsed = topicDiv.find("#time-elapsed");
 
-		timeElapsed.html(formatCounter(getTopicTime(key)));
-		topicButton.html(getTopicName(key));
-		topicButton.val(key);
-		topicButton.attr("id", key);
-		topicDiv.attr("id", "work"+key);
-		timeElapsed.attr("id", "time-elapsed-"+key);
-		topicDiv.find("#edit-topic-input").hide();
-		topicDiv.find("#time-note-group").hide();
-		$("#list_items").append(topicDiv);
-		topicDiv.show();
+			timeElapsed.html(formatCounter(getTopicTime(key)));
+			topicButton.html(getTopicName(key));
+			topicButton.val(key);
+			topicButton.attr("id", key);
+			topicDiv.attr("id", "work"+key);
+			timeElapsed.attr("id", "time-elapsed-"+key);
+			topicDiv.find("#edit-topic-input").hide();
+			topicDiv.find("#time-note-group").hide();
+			$("#list_items").append(topicDiv);
+			topicDiv.show();
+		}
 	}
+
+	$("#time-elapsed-break").html(formatCounter(getTopicTime("break")));
 
 	setActiveTopic();
 }
@@ -160,6 +183,7 @@ function attachListeners() {
 	$("body").on('click', '#is-active-modal-accept', modalAccept);
 	$("body").on('click', '#hide-events', hideEvents);
 	$("body").on('click', '#show-events', showEvents);
+	$("body").on('click', '#strict-mode-toggle', strictModeToggle);
 
 	$("#import-button").change(importData);
 
@@ -233,6 +257,18 @@ function clockTick() {
 	 	$("#time-elapsed-"+selectedTopicID).html(timeString);
 
 	 	setTopicTime(selectedTopicID, timeSeconds);
+	 } else if (!isWorkingOnTask && procrastinationMode) {
+	 	if (procrastinationStartTimestamp != null) {
+		 	procrastinationTimeElapsedSeconds = (current_time.valueOf() - procrastinationStartTimestamp.valueOf()) / 1000;
+
+		 	var timeSeconds = procrastinationPreviousTimeElapsedSeconds + procrastinationTimeElapsedSeconds;
+		 	var timeString = formatCounter(timeSeconds);
+
+		 	$("#time-elapsed-header").html(timeString);
+		 	$("#time-elapsed-procrastination").html(timeString);
+
+		 	setTopicTime("procrastination", timeSeconds);
+	 	}
 	 }
 	setTimeout(clockTick, 500);
 }
@@ -288,6 +324,10 @@ function stopTimerUtils(timeElapsed, time) {
 		setActiveTopic();
 
 		localStorage.setItem("isWorkingOnTask", false);
+
+		if (procrastinationMode) {
+			setupProcrastinationMode();
+		}
 		storeTopics();
 	}
 	clearTimeout(timeoutVar);
@@ -303,6 +343,15 @@ function loadTimer() {
 /* Starts the timer (if stopped) */
 function startTimer() {
 	if (!isWorkingOnTask) {
+		if (procrastinationMode) {
+			var procrastinationEventString = `Stopped procrastinating`;
+			pushEvent(procrastinationEventString);
+			procrastinationPreviousTimeElapsedSeconds += procrastinationTimeElapsedSeconds;
+			setTopicTime("procrastination", procrastinationPreviousTimeElapsedSeconds);
+			procrastinationTimeElapsedSeconds = 0;
+			$("#procrastination-button").removeClass("btn-warning").addClass("btn-light");
+			$(".procrastination-actions").removeClass("btn-warning").addClass("btn-light");
+		}
 		currSessionTimeElapsedSeconds = 0;
 		loadTimer();
 		workStartedTimestamp = new Date();
@@ -374,6 +423,7 @@ function addNewTopic(topic) {
 		topicsDictionary[topicId] = {id: topicId, name: topic, time: 0};
 
 		if (!topicExists(selectedTopicID) || isWorkingOnTask == false) {
+			unsetActiveTopic(); //unsets break from active topic
 			selectedTopicID = topicId;
 			storeSelectedTopicID();
 		}
@@ -415,9 +465,24 @@ function editTopic() {
 }
 
 function resetTopic() {
-	var topicId = $(this).parent().parent().attr("id").substring(4);
-	console.log($(this));
-	stopTimer();
+	var topicId;
+	if ($(this).attr("value") == "break") {
+		topicId = $(this).attr("value");
+	} else if ($(this).attr("value") == "procrastination") {
+		topicId = $(this).attr("value");
+
+		if (procrastinationMode && !isWorkingOnTask) {
+			procrastinationPreviousTimeElapsedSeconds = 0;
+			procrastinationTimeElapsedSeconds = 0;
+			procrastinationStartTimestamp = new Date();
+		}
+	} else {
+		topicId = $(this).parent().parent().attr("id").substring(4);
+	}
+	console.log(topicId);
+	if (topicId == selectedTopicID) {
+		stopTimer();
+	}
 	setTopicTime(topicId, 0, true);
 	storeTopics();
 	render();
@@ -440,13 +505,14 @@ function selectTopic() {
 		if (topicExists(selectedTopicID)) {
 			stopTimer();
 			unsetActiveTopic();
+		}
 
-			selectedTopicID = $(this).val();
-			storeSelectedTopicID();
+		selectedTopicID = $(this).val();
+		storeSelectedTopicID();
 
+		if (topicExists(selectedTopicID)) {
 			setActiveTopic();
 			startTimer();
-
 			document.title = "Work Log - " + getTopicName(selectedTopicID);
 		}
 	} else {
@@ -479,7 +545,11 @@ function setActiveTopic() {
 			activeTopicMoreActions.addClass("btn-success");
 		}
 
-		setTopicAlert(getTopicName(selectedTopicID));
+		if (isWorkingOnTask || !procrastinationMode) {
+			setTopicAlert(getTopicName(selectedTopicID));
+		} else if (procrastinationMode) {
+			setTopicAlert("Procrastination");
+		}
 	}
 }
 
@@ -491,8 +561,52 @@ function toggleTimer(state) {
 	}
 }
 
+function strictModeToggle() {
+	procrastinationMode = !procrastinationMode;
+
+	if (!procrastinationMode) {
+		procrastinationPreviousTimeElapsedSeconds += procrastinationTimeElapsedSeconds;
+		setTopicTime("procrastination", procrastinationPreviousTimeElapsedSeconds);
+		procrastinationTimeElapsedSeconds = 0;
+		$("#procrastination-button").removeClass("btn-warning").addClass("btn-light");
+		$(".procrastination-actions").removeClass("btn-warning").addClass("btn-light");
+
+		if (!isWorkingOnTask) {
+			pushEvent("Stopped procrastinating");
+		}
+	}
+
+	localStorage.setItem("procrastinationMode", procrastinationMode);
+	setupProcrastinationMode();
+}
+
+function setupProcrastinationMode() {
+	if (procrastinationMode) {
+		$("#procrastination").show();
+		procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
+	 	$("#time-elapsed-procrastination").html(formatCounter(procrastinationPreviousTimeElapsedSeconds));
+		if (!isWorkingOnTask) {
+			var procrastinationEventString = `Started procrastinating`;
+			pushEvent(procrastinationEventString);
+			procrastinationStartTimestamp = new Date();
+			procrastinationTimeElapsedSeconds = 0;
+			$("#procrastination-button").removeClass("btn-light").addClass("btn-warning");
+			$(".procrastination-actions").removeClass("btn-light").addClass("btn-warning");
+			setTopicAlert("Procrastination");
+		}
+	} else if (!procrastinationMode) {
+		$("#procrastination").hide();
+		if (topicExists(selectedTopicID)) {
+			setTopicAlert(getTopicName(selectedTopicID));
+		} else {
+			setTopicAlert("No Topic Selected");
+		}
+	}
+}
+
 function clearData() {
 	localStorage.clear();
+	setupProcrastinationMode();
 	location.reload();
 }
 

@@ -16,6 +16,66 @@
 			    padding: 6px 12px;
 			    cursor: pointer;
 			}
+
+			.switch {
+			  position: relative;
+			  display: inline-block;
+			  width: 60px;
+			  height: 34px;
+			}
+
+			.switch input { 
+			  opacity: 0;
+			  width: 0;
+			  height: 0;
+			}
+
+			.slider {
+			  position: absolute;
+			  cursor: pointer;
+			  top: 0;
+			  left: 0;
+			  right: 0;
+			  bottom: 0;
+			  background-color: #ccc;
+			  -webkit-transition: .2s;
+			  transition: .2s;
+			}
+
+			.slider:before {
+			  position: absolute;
+			  content: "";
+			  height: 26px;
+			  width: 26px;
+			  left: 4px;
+			  bottom: 4px;
+			  background-color: white;
+			  -webkit-transition: .2s;
+			  transition: .2s;
+			}
+
+			input:checked + .slider {
+			  background-color: #2196F3;
+			}
+
+			input:focus + .slider {
+			  box-shadow: 0 0 1px #2196F3;
+			}
+
+			input:checked + .slider:before {
+			  -webkit-transform: translateX(26px);
+			  -ms-transform: translateX(26px);
+			  transform: translateX(26px);
+			}
+
+			/* Rounded sliders */
+			.slider.round {
+			  border-radius: 34px;
+			}
+
+			.slider.round:before {
+			  border-radius: 50%;
+			}
 		</style>
 	</head>
 	<body>
@@ -93,13 +153,30 @@
 								<div class="dropdown-menu" aria-labelledby="more-actions">
 									<a class="dropdown-item" href="#" id="delete-topic">Delete</a>
 									<a class="dropdown-item" href="#" id="edit-topic">Edit Name</a>
-									<a class="dropdown-item" href="#" id="reset-topic">Reset Topic</a>
+									<a class="dropdown-item" href="#" id="reset-topic">Reset Topic Time</a>
 								</div>
 								<input id="edit-topic-input" class="form-control input-lg col-9" style="margin-top:10px" placeholder="Edit Topic Name">
 								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-3" disabled>0s</button>
 						</div>
 						<h2 style="padding-left:15px">Work Items</h2>
 						<div class="col-lg-12" id="list_items" style="margin-right: 20px">
+						</div>
+
+						<div class="row workTopic col-12 btn-group dropright" role="group" id="break-group" style="margin-top: 10px">
+								<button type="button" id="break" class="btn btn-light btn-lg col-8 topicButton" style="margin-top:10px" value="break">Break</button>
+								<button type="button" id="more-actions" class="btn btn-light btn-lg col-1" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
+								<div class="dropdown-menu" aria-labelledby="more-actions">
+									<a class="dropdown-item" href="#" id="reset-topic" value="break">Reset Break</a>
+								</div>
+								<button type="button" id="time-elapsed-break" class="btn btn-link btn-lg col-3" disabled>0s</button>
+						</div>
+						<div class="row workTopic col-12 btn-group dropright" role="group" id="procrastination" style="margin-top: 10px">
+								<button type="button" id="procrastination-button" class="btn btn-light btn-lg col-8" style="margin-top:10px" disabled>Procrastination</button>
+								<button type="button" id="more-actions" class="btn btn-light btn-lg col-1 procrastination-actions" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
+								<div class="dropdown-menu" aria-labelledby="more-actions">
+									<a class="dropdown-item" href="#" id="reset-topic" value="procrastination">Reset Procrastination</a>
+								</div>
+								<button type="button" id="time-elapsed-procrastination" class="btn btn-link btn-lg col-3" disabled>0s</button>
 						</div>
 
 						<div class="input-group input-group-lg mb-3 col-lg-12" style="margin-top:20px">
@@ -136,6 +213,17 @@
 				</div>
 			</div>
 		</div>
+		<nav class="navbar fixed-bottom navbar-light bg-light">
+			<div class="d-flex align-items-center">
+				<label class="switch">
+				  <input type="checkbox" id="strict-mode-toggle">
+				  <span class="slider round"></span>
+				</label>
+				<div style="padding-left:5px">
+					Strict Mode
+				</div>
+		  	</div>
+		</nav>
 		<!-- JS -->
 		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
