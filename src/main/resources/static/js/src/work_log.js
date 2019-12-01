@@ -83,9 +83,10 @@ function setupStorage() {
 			checkIfActive();
 		} else {
 			if (procrastinationMode) {
-				console.log("setup procrastination");
 				procrastinationStartTimestamp = new Date();
 				procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
+				$("#procrastination-button").removeClass("btn-light").addClass("btn-warning");
+				$(".procrastination-actions").removeClass("btn-light").addClass("btn-warning");
 				console.log(getTopic("procrastination"));
 			}
 		}
@@ -325,6 +326,7 @@ function stopTimerUtils(timeElapsed, time) {
 			procrastinationStartTimestamp = new Date();
 			setTopicAlert("Procrastination");
 			$("#procrastination-button").removeClass("btn-light").addClass("btn-warning");
+			$(".procrastination-actions").removeClass("btn-light").addClass("btn-warning");
 		}
 		storeTopics();
 	}
@@ -368,6 +370,7 @@ function startTimer() {
 			setTopicTime("procrastination", procrastinationPreviousTimeElapsedSeconds);
 			procrastinationTimeElapsedSeconds = 0;
 			$("#procrastination-button").removeClass("btn-warning").addClass("btn-light");
+			$(".procrastination-actions").removeClass("btn-warning").addClass("btn-light");
 		}
 	}
 }
