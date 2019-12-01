@@ -15,6 +15,7 @@ var previousSessionsTimeElapsedSeconds = 0;
 var timeElapsedAtAlert = 0;
 var timestampAtAlert = "";
 var timeoutVar = null;
+var lastSavedTimestamp = null;
 
 var show_events = true;
 
@@ -133,11 +134,8 @@ function renderEvents() {
 	$("#event-items").html("");
 
 	if (show_events) {
-		var i = 0;
-		// if (eventsLogList.length > 10) {
-		// 	i = eventsLogList.length - 10;
-		// }
-		for (;i < eventsLogList.length; i++) {
+		var i;
+		for (i = 0;i < eventsLogList.length; i++) {
 			var eventsListItem = $("#event-template").clone();
 			eventsListItem.html(eventsLogList[i]);
 			$("#event-items").append(eventsListItem);
@@ -219,13 +217,10 @@ function checkFileAPI() {
 /* Fetches current time and updates timer/clock */
 function clockTick() {
 	var current_time = new Date();
-	 currTimeFormatted = formatTimeElement(current_time);
+	
+	currTimeFormatted = formatTimeElement(current_time);
+	currTimestamp = current_time.valueOf();
 
-	updateTimer(current_time);
-	setTimeout(clockTick, 500);
-}
-/* Updates Work Item Timer */
-function updateTimer(current_time) {
 	if (isWorkingOnTask && shouldUpdateTicker) {
 	 	currSessionTimeElapsedSeconds = (current_time.valueOf() - workStartedTimestamp.valueOf()) / 1000;
 
@@ -234,7 +229,10 @@ function updateTimer(current_time) {
 
 	 	$("#time-elapsed-header").html(timeString);
 	 	$("#time-elapsed-"+selectedTopicID).html(timeString);
+
+	 	setTopicTime(selectedTopicID, timeSeconds);
 	 }
+	setTimeout(clockTick, 500);
 }
 
 /* Formats a full datetime string */
@@ -445,6 +443,8 @@ function selectTopic() {
 		toggleTimer(!isWorkingOnTask);
 	}
 
+	//TOOD: REMOVE
+	lastSavedTimestamp = currTimestamp;
 	renderEvents();
 	storeLocalStorage(eventsLogList, topicsDictionary, selectedTopicID);
 }
@@ -542,6 +542,7 @@ function topicExists(id) {
 }
 
 function setTopicTime(id, time) {
+	console.log(currTimestamp - lastSavedTimestamp);
 	topicsDictionary[id].time = time;
 }
 
