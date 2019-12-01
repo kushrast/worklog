@@ -469,8 +469,12 @@ function resetTopic() {
 		topicId = $(this).attr("value");
 	} else if ($(this).attr("value") == "procrastination") {
 		topicId = $(this).attr("value");
-		procrastinationPreviousTimeElapsedSeconds = 0;
-		procrastinationTimeElapsedSeconds = 0;
+
+		if (procrastinationMode && !isWorkingOnTask) {
+			procrastinationPreviousTimeElapsedSeconds = 0;
+			procrastinationTimeElapsedSeconds = 0;
+			procrastinationStartTimestamp = new Date();
+		}
 	} else {
 		topicId = $(this).parent().parent().attr("id").substring(4);
 	}
