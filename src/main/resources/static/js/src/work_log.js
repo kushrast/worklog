@@ -19,6 +19,10 @@ var lastSavedTimestamp = null;
 
 var show_events = true;
 
+var procrastinationMode = false;
+var procrastinationStartTimestamp = null;
+var procrastionationPreviousTimeElapsedSeconds = 0;
+
 var MODAL_TIME_CONSTANT = 900000;
 
 $( document ).ready(function() {
@@ -42,6 +46,10 @@ function hideTemplates() {
 	$("#event-template").hide();
 	$("#show-events").hide();
 	$("#stop-timer").hide();
+
+	if (!procrastinationMode) {
+		$("#procrastination").hide();
+	}
 }
 
 /* Pull data from storage when page first loads */
@@ -55,6 +63,7 @@ function setupStorage() {
 	if (topicsDictionary == null) {
 		topicsDictionary = {};
 		topicsDictionary["break"] = {id: "break", name: "break", time: 0};
+		topicsDictionary["procrastination"] = {id: "procrastination", name: "procrastination", time: 0};
 	}
 
 	selectedTopicID = localStorage.getItem("selectedTopicID");
@@ -71,6 +80,11 @@ function setupStorage() {
 
 		if (isWorkingOnTask) {
 			checkIfActive();
+		} else {
+			if (procrastinationMode) {
+				procrastinationStartTimestamp = new Date();
+				procrastionationPreviousTimeElapsedSeconds = 0;
+			}
 		}
 	}
 }
@@ -238,6 +252,16 @@ function clockTick() {
 	 	$("#time-elapsed-"+selectedTopicID).html(timeString);
 
 	 	setTopicTime(selectedTopicID, timeSeconds);
+	 } else if (!isWorkingOnTask && procrastinationMode) {
+	 	var procrastinationTimeElapsedSeconds = (current_time.valueOf() - procrastinationStartTimestamp.valueOf()) / 1000;
+
+	 	var timeSeconds = procrastionationPreviousTimeElapsedSeconds + procrastinationTimeElapsedSeconds;
+	 	var timeString = formatCounter(timeSeconds);
+
+	 	$("#time-elapsed-header").html(timeString);
+	 	$("#time-elapsed-procrastination").html(timeString);
+
+	 	setTopicTime("procrastination", timeSeconds);
 	 }
 	setTimeout(clockTick, 500);
 }
