@@ -32,8 +32,8 @@ $( document ).ready(function() {
 /* Setup environment when page is first loaded */
 function setupEnvironment() {
 	hideTemplates();
-	startClock();
 	setupStorage();
+	startClock();
 	render();
 	attachListeners();
 	checkFileAPI();
