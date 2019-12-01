@@ -484,7 +484,7 @@ function clearData() {
 
 function saveData() {
 	var new_events = eventsLogList.slice(0);
-	var file_dump = {"events" : new_events, "topics" : topicsDictionary, "selectedTopicID": selectedTopicID, "selectedTopicID", "workStartedTimestamp", workStartedTimestamp, "isWorkingOnTask", isWorkingOnTask}
+	var file_dump = {"events" : new_events, "topics" : topicsDictionary, "selectedTopicID": selectedTopicID, "selectedTopicID", "workStartedTimestamp": workStartedTimestamp, "isWorkingOnTask": isWorkingOnTask}
 	var blob = new Blob([JSON.stringify(file_dump, null, 2)], {type : 'application/json'});
 	var url = window.URL.createObjectURL(blob);
 	$("#file_download").html(url);
