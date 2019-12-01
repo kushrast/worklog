@@ -82,13 +82,7 @@ function setupStorage() {
 		if (isWorkingOnTask) {
 			checkIfActive();
 		} else {
-			if (procrastinationMode) {
-				procrastinationStartTimestamp = new Date();
-				procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
-				$("#procrastination-button").removeClass("btn-light").addClass("btn-warning");
-				$(".procrastination-actions").removeClass("btn-light").addClass("btn-warning");
-				console.log(getTopic("procrastination"));
-			}
+			setupProcrastinationMode();
 		}
 	}
 }
@@ -183,6 +177,7 @@ function attachListeners() {
 	$("body").on('click', '#is-active-modal-accept', modalAccept);
 	$("body").on('click', '#hide-events', hideEvents);
 	$("body").on('click', '#show-events', showEvents);
+	$("body").on('click', '#strict-mode-toggle', strictModeToggle);
 
 	$("#import-button").change(importData);
 
@@ -557,6 +552,22 @@ function toggleTimer(state) {
 		stopTimer();
 	} else if (!isWorkingOnTask && state) {
 		startTimer();
+	}
+}
+
+function strictModeToggle() {
+	procrastinationMode = !procrastinationMode;
+	setupProcrastinationMode();
+}
+
+function setupProcrastinationMode() {
+	if (procrastinationMode) {
+		procrastinationStartTimestamp = new Date();
+		procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
+		procrastinationTimeElapsedSeconds = 0;
+		$("#procrastination-button").removeClass("btn-light").addClass("btn-warning");
+		$(".procrastination-actions").removeClass("btn-light").addClass("btn-warning");
+		console.log(getTopic("procrastination"));
 	}
 }
 
