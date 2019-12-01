@@ -21,7 +21,7 @@ var show_events = true;
 
 var procrastinationMode = true;
 var procrastinationStartTimestamp = null;
-var procrastionationPreviousTimeElapsedSeconds = 0;
+var procrastinationPreviousTimeElapsedSeconds = 0;
 
 var MODAL_TIME_CONSTANT = 900000;
 
@@ -82,8 +82,9 @@ function setupStorage() {
 			checkIfActive();
 		} else {
 			if (procrastinationMode) {
+				console.log("setup procrastination");
 				procrastinationStartTimestamp = new Date();
-				procrastionationPreviousTimeElapsedSeconds = 0;
+				procrastinationPreviousTimeElapsedSeconds = 0;
 			}
 		}
 	}
@@ -255,7 +256,7 @@ function clockTick() {
 	 } else if (!isWorkingOnTask && procrastinationMode) {
 	 	var procrastinationTimeElapsedSeconds = (current_time.valueOf() - procrastinationStartTimestamp.valueOf()) / 1000;
 
-	 	var timeSeconds = procrastionationPreviousTimeElapsedSeconds + procrastinationTimeElapsedSeconds;
+	 	var timeSeconds = procrastinationPreviousTimeElapsedSeconds + procrastinationTimeElapsedSeconds;
 	 	var timeString = formatCounter(timeSeconds);
 
 	 	$("#time-elapsed-header").html(timeString);
@@ -317,6 +318,10 @@ function stopTimerUtils(timeElapsed, time) {
 		setActiveTopic();
 
 		localStorage.setItem("isWorkingOnTask", false);
+
+		if (procrastinationMode) {
+			procrastinationStartTimestamp = new Date();
+		}
 		storeTopics();
 	}
 	clearTimeout(timeoutVar);
@@ -353,6 +358,12 @@ function startTimer() {
 
 		localStorage.setItem("workStartedTimestamp", workStartedTimestamp);
 		localStorage.setItem("isWorkingOnTask", true);
+
+		if (procrastinationMode) {
+			procrastinationPreviousTimeElapsedSeconds += procrastinationTimeElapsedSeconds;
+			setTopicTime("procrastination", procrastinationPreviousTimeElapsedSeconds);
+			procrastinationTimeElapsedSeconds = 0;
+		}
 	}
 }
 
