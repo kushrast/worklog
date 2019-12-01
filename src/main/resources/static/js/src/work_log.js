@@ -86,6 +86,7 @@ function setupStorage() {
 				console.log("setup procrastination");
 				procrastinationStartTimestamp = new Date();
 				procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
+				console.log(getTopic["procrastination"]);
 				setTopicAlert("Procrastination");
 			}
 		}
