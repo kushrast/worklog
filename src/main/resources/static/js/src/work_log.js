@@ -421,12 +421,11 @@ function editTopic() {
 
 function resetTopic() {
 	var topicId;
-	if ($(this).val() == "break") {
+	if ($(this).attr("value") == "break") {
 		topicId = "break";
 	} else {
 		topicId = $(this).parent().parent().attr("id").substring(4);
 	}
-	console.log($(this).val());
 	stopTimer();
 	setTopicTime(topicId, 0, true);
 	storeTopics();
