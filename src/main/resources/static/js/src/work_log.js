@@ -47,10 +47,7 @@ function hideTemplates() {
 	$("#event-template").hide();
 	$("#show-events").hide();
 	$("#stop-timer").hide();
-
-	if (!procrastinationMode) {
-		$("#procrastination").hide();
-	}
+	$("#procrastination").hide();
 }
 
 /* Pull data from storage when page first loads */
@@ -561,13 +558,16 @@ function strictModeToggle() {
 }
 
 function setupProcrastinationMode() {
-	if (procrastinationMode) {
+	if (procrastinationMode && !isWorkingOnTask) {
+		$("#procrastination").show();
 		procrastinationStartTimestamp = new Date();
 		procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
 		procrastinationTimeElapsedSeconds = 0;
 		$("#procrastination-button").removeClass("btn-light").addClass("btn-warning");
 		$(".procrastination-actions").removeClass("btn-light").addClass("btn-warning");
 		console.log(getTopic("procrastination"));
+	} else if (!procrastinationMode) {
+		$("#procrastination").hide();
 	}
 }
 
