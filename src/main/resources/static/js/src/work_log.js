@@ -461,17 +461,22 @@ function selectTopic() {
 
 function unsetActiveTopic() {
 	$(`#${selectedTopicID}`).removeClass("btn-success").removeClass("btn-danger").addClass("btn-light");
+	$(`#${selectedTopicID}`).parent().find("#more-actions").removeClass("btn-success").removeClass("btn-danger").addClass("btn-light");
 }
 
 function setActiveTopic() {
 	if (topicExists(selectedTopicID)) {
 		var activeTopic = $(`#${selectedTopicID}`);
+		var activeTopicMoreActions = activeTopic.parent().find("#more-actions");
 		activeTopic.removeClass("btn-light").removeClass("btn-danger").removeClass("btn-success");
+		activeTopicMoreActions.removeClass("btn-light").removeClass("btn-danger").removeClass("btn-success");
 
 		if (isWorkingOnTask) {
 			activeTopic.addClass("btn-danger");
+			activeTopicMoreActions.addClass("btn-danger");
 		} else {
 			activeTopic.addClass("btn-success");
+			activeTopicMoreActions.addClass("btn-success");
 		}
 
 		setTopicAlert(getTopicName(selectedTopicID));
