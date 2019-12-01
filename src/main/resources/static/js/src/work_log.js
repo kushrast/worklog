@@ -151,6 +151,7 @@ function attachListeners() {
 	$("body").on('click', '.topicButton', selectTopic);
 	$("body").on('click', '#delete-topic', deleteTopic);
 	$("body").on('click', '#edit-topic', editTopic);
+	$("body").on('click', '#reset-topic', resetTopic);
 	$("body").on('click', '#start-timer', startTimer);
 	$("body").on('click', '#stop-timer', stopTimer);
 	$("body").on('click', '#save-button', saveData);
@@ -412,6 +413,13 @@ function editTopic() {
 	$(this).parent().parent().find(".topicButton").hide();
 	$(this).parent().parent().find("#more-actions").hide();
 	$(this).parent().parent().find("#edit-topic-input").show();
+}
+
+function resetTopic() {
+	var topicId = $(this).parent().parent().parent().attr("id").substring(4);
+	stopTimer();
+	setTopicTime(topicId, 0);
+	storeTopics();
 }
 
 function changeTopicName(element) {
