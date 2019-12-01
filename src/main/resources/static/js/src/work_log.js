@@ -418,8 +418,9 @@ function editTopic() {
 function resetTopic() {
 	var topicId = $(this).parent().parent().parent().attr("id").substring(4);
 	stopTimer();
-	setTopicTime(topicId, 0);
+	setTopicTime(topicId, 0, true);
 	storeTopics();
+	render();
 }
 
 function changeTopicName(element) {
@@ -552,9 +553,9 @@ function topicExists(id) {
 	return id != "" && id != null && topicsDictionary[id] != null;
 }
 
-function setTopicTime(id, time) {
+function setTopicTime(id, time, force=false) {
 	topicsDictionary[id].time = time;
-	if (currTimestamp - lastSavedTimestamp > 5000) {
+	if (force || currTimestamp - lastSavedTimestamp > 5000) {
 		storeTopics();
 	}
 }
