@@ -324,6 +324,7 @@ function stopTimerUtils(timeElapsed, time) {
 		if (procrastinationMode) {
 			procrastinationStartTimestamp = new Date();
 			setTopicAlert("Procrastination");
+			$("#procrastination-button").addClass("btn-warning");
 		}
 		storeTopics();
 	}
@@ -366,6 +367,7 @@ function startTimer() {
 			procrastinationPreviousTimeElapsedSeconds += procrastinationTimeElapsedSeconds;
 			setTopicTime("procrastination", procrastinationPreviousTimeElapsedSeconds);
 			procrastinationTimeElapsedSeconds = 0;
+			$("#procrastination-button").removeClass("btn-warning");
 		}
 	}
 }
@@ -460,8 +462,12 @@ function editTopic() {
 
 function resetTopic() {
 	var topicId;
-	if ($(this).attr("value") == "break" || $(this).attr("value") == "procrastination") {
+	if ($(this).attr("value") == "break") {
 		topicId = $(this).attr("value");
+	} else if ($(this).attr("value") == "procrastination") {
+		topicId = $(this).attr("value");
+		procrastinationPreviousTimeElapsedSeconds = 0;
+		procrastinationTimeElapsedSeconds = 0;
 	} else {
 		topicId = $(this).parent().parent().attr("id").substring(4);
 	}
