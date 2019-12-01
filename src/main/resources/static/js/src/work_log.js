@@ -465,6 +465,7 @@ function resetTopic() {
 	} else {
 		topicId = $(this).parent().parent().attr("id").substring(4);
 	}
+	console.log(topicId);
 	stopTimer();
 	setTopicTime(topicId, 0, true);
 	storeTopics();
