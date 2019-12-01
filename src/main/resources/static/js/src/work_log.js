@@ -324,6 +324,8 @@ function stopTimerUtils(timeElapsed, time) {
 		localStorage.setItem("isWorkingOnTask", false);
 
 		if (procrastinationMode) {
+			var procrastinationEventString = `Started procrastinating`;
+			pushEvent(procrastinationEventString);
 			setupProcrastinationMode();
 		}
 		storeTopics();
@@ -341,6 +343,15 @@ function loadTimer() {
 /* Starts the timer (if stopped) */
 function startTimer() {
 	if (!isWorkingOnTask) {
+		if (procrastinationMode) {
+			var procrastinationEventString = `Stopped procrastinating`;
+			pushEvent(procrastinationEventString);
+			procrastinationPreviousTimeElapsedSeconds += procrastinationTimeElapsedSeconds;
+			setTopicTime("procrastination", procrastinationPreviousTimeElapsedSeconds);
+			procrastinationTimeElapsedSeconds = 0;
+			$("#procrastination-button").removeClass("btn-warning").addClass("btn-light");
+			$(".procrastination-actions").removeClass("btn-warning").addClass("btn-light");
+		}
 		currSessionTimeElapsedSeconds = 0;
 		loadTimer();
 		workStartedTimestamp = new Date();
@@ -362,14 +373,6 @@ function startTimer() {
 
 		localStorage.setItem("workStartedTimestamp", workStartedTimestamp);
 		localStorage.setItem("isWorkingOnTask", true);
-
-		if (procrastinationMode) {
-			procrastinationPreviousTimeElapsedSeconds += procrastinationTimeElapsedSeconds;
-			setTopicTime("procrastination", procrastinationPreviousTimeElapsedSeconds);
-			procrastinationTimeElapsedSeconds = 0;
-			$("#procrastination-button").removeClass("btn-warning").addClass("btn-light");
-			$(".procrastination-actions").removeClass("btn-warning").addClass("btn-light");
-		}
 	}
 }
 
