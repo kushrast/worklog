@@ -54,6 +54,7 @@ function setupStorage() {
 	topicsDictionary = JSON.parse(localStorage.getItem("topics"));
 	if (topicsDictionary == null) {
 		topicsDictionary = {};
+		topicsDictionary["break"] = {id: "break", name: "break", time: 0};
 	}
 
 	selectedTopicID = localStorage.getItem("selectedTopicID");
@@ -449,8 +450,6 @@ function selectTopic() {
 			setActiveTopic();
 			startTimer();
 			document.title = "Work Log - " + getTopicName(selectedTopicID);
-		} else if (selectedTopicID == "break") {
-			console.log("hey");
 		}
 	} else {
 		toggleTimer(!isWorkingOnTask);
