@@ -409,14 +409,13 @@ function deleteTopic() {
 }
 
 function editTopic() {
-	var topicId = $(this).parent().parent().parent().attr("id").substring(4);
 	$(this).parent().parent().find(".topicButton").hide();
 	$(this).parent().parent().find("#more-actions").hide();
 	$(this).parent().parent().find("#edit-topic-input").show();
 }
 
 function resetTopic() {
-	var topicId = $(this).parent().parent().parent().attr("id").substring(4);
+	var topicId = $(this).parent().parent().attr("id").substring(4);
 	console.log($(this));
 	stopTimer();
 	setTopicTime(topicId, 0, true);
