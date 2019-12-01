@@ -506,7 +506,7 @@ function importData(event) {
 			selectedTopicID = file_dump.selectedTopicID;
 
 			storeLocalStorage(eventsLogList, topicsDictionary, selectedTopicID);
-			workStartedTimestamp = file_dump.workStartedTimestamp;
+			workStartedTimestamp = parseInt(file_dump.workStartedTimestamp);
 			isWorkingOnTask = file_dump.isWorkingOnTask;
 
 			if (isWorkingOnTask) {
