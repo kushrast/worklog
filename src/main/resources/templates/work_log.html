@@ -93,9 +93,25 @@
 								<div class="dropdown-menu" aria-labelledby="more-actions">
 									<a class="dropdown-item" href="#" id="delete-topic">Delete</a>
 									<a class="dropdown-item" href="#" id="edit-topic">Edit Name</a>
-									<a class="dropdown-item" href="#" id="reset-topic">Reset Topic</a>
+									<a class="dropdown-item" href="#" id="reset-topic">Reset Topic Time</a>
 								</div>
 								<input id="edit-topic-input" class="form-control input-lg col-9" style="margin-top:10px" placeholder="Edit Topic Name">
+								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-3" disabled>0s</button>
+						</div>
+						<div class="row workTopic col-12 btn-group dropright" role="group" id="break" style="margin-top: 10px">
+								<button type="button" id="break-button" class="btn btn-light btn-lg col-8 topicButton" style="margin-top:10px">Break</button>
+								<button type="button" id="more-actions" class="btn btn-light btn-lg col-1" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
+								<div class="dropdown-menu" aria-labelledby="more-actions">
+									<a class="dropdown-item" href="#" id="reset-break">Reset Break</a>
+								</div>
+								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-3" disabled>0s</button>
+						</div>
+						<div class="row workTopic col-12 btn-group dropright" role="group" id="procrastination" style="margin-top: 10px">
+								<button type="button" id="procrastination-button" class="btn btn-light btn-lg col-8 topicButton" style="margin-top:10px">Procrastination</button>
+								<button type="button" id="more-actions" class="btn btn-light btn-lg col-1" style="margin-top:10px" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">⋮</button>
+								<div class="dropdown-menu" aria-labelledby="more-actions">
+									<a class="dropdown-item" href="#" id="reset-break">Reset Procrastination</a>
+								</div>
 								<button type="button" id="time-elapsed" class="btn btn-link btn-lg col-3" disabled>0s</button>
 						</div>
 						<h2 style="padding-left:15px">Work Items</h2>
