@@ -33,8 +33,8 @@ $( document ).ready(function() {
 /* Setup environment when page is first loaded */
 function setupEnvironment() {
 	hideTemplates();
-	setupStorage();
 	startClock();
+	setupStorage();
 	render();
 	attachListeners();
 	checkFileAPI();
@@ -258,15 +258,17 @@ function clockTick() {
 
 	 	setTopicTime(selectedTopicID, timeSeconds);
 	 } else if (!isWorkingOnTask && procrastinationMode) {
-	 	procrastinationTimeElapsedSeconds = (current_time.valueOf() - procrastinationStartTimestamp.valueOf()) / 1000;
+	 	if (procrastinationStartTimestamp != null) {
+		 	procrastinationTimeElapsedSeconds = (current_time.valueOf() - procrastinationStartTimestamp.valueOf()) / 1000;
 
-	 	var timeSeconds = procrastinationPreviousTimeElapsedSeconds + procrastinationTimeElapsedSeconds;
-	 	var timeString = formatCounter(timeSeconds);
+		 	var timeSeconds = procrastinationPreviousTimeElapsedSeconds + procrastinationTimeElapsedSeconds;
+		 	var timeString = formatCounter(timeSeconds);
 
-	 	$("#time-elapsed-header").html(timeString);
-	 	$("#time-elapsed-procrastination").html(timeString);
+		 	$("#time-elapsed-header").html(timeString);
+		 	$("#time-elapsed-procrastination").html(timeString);
 
-	 	setTopicTime("procrastination", timeSeconds);
+		 	setTopicTime("procrastination", timeSeconds);
+	 	}
 	 }
 	setTimeout(clockTick, 500);
 }
