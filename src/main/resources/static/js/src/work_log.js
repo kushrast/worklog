@@ -383,7 +383,7 @@ function addNewTopic(topic) {
 
 function addNewNote(noteContent) {
 	if (topicExists(selectedTopicID)) {
-		pushEvent(getTopicName(selectedTopicID+": "+noteContent);
+		pushEvent(getTopicName(selectedTopicID)+": "+noteContent);
 	} else {
 		pushEvent("No Topic: "+noteContent);
 	}
