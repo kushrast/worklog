@@ -80,8 +80,10 @@ function setupStorage() {
 			checkIfActive();
 		} else {
 			procrastinationMode = localStorage.getItem("procrastinationMode");
-			if (procrastinationMode == null) {
+			if (procrastinationMode == null || procrastinationMode == "false") {
 				procrastinationMode = false;
+			} else {
+				procrastinationMode = true;
 			}
 			setupProcrastinationMode();
 		}
@@ -591,6 +593,7 @@ function setupProcrastinationMode() {
 
 function clearData() {
 	localStorage.clear();
+	setupProcrastinationMode();
 	location.reload();
 }
 
