@@ -379,6 +379,7 @@ function addNewTopic(topic) {
 		topicsDictionary[topicId] = {id: topicId, name: topic, time: 0};
 
 		if (!topicExists(selectedTopicID) || isWorkingOnTask == false) {
+			unsetActiveTopic(); //unsets break from active topic
 			selectedTopicID = topicId;
 			storeSelectedTopicID();
 		}
