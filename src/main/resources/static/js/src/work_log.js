@@ -22,6 +22,7 @@ var show_events = true;
 var procrastinationMode = true;
 var procrastinationStartTimestamp = null;
 var procrastinationPreviousTimeElapsedSeconds = 0;
+var procrastinationTimeElapsedSeconds = 0;
 
 var MODAL_TIME_CONSTANT = 900000;
 
@@ -111,7 +112,7 @@ function renderTopics() {
 	$("#list_items").html("");
 
 	for (var key in topicsDictionary) {
-		if (key != "break") {
+		if (key != "break" && key != "procrastionation") {
 			var topicDiv = $("#template").clone();
 			var topicButton = topicDiv.find("#work-template");
 			var timeElapsed = topicDiv.find("#time-elapsed");
@@ -254,7 +255,7 @@ function clockTick() {
 
 	 	setTopicTime(selectedTopicID, timeSeconds);
 	 } else if (!isWorkingOnTask && procrastinationMode) {
-	 	var procrastinationTimeElapsedSeconds = (current_time.valueOf() - procrastinationStartTimestamp.valueOf()) / 1000;
+	 	procrastinationTimeElapsedSeconds = (current_time.valueOf() - procrastinationStartTimestamp.valueOf()) / 1000;
 
 	 	var timeSeconds = procrastinationPreviousTimeElapsedSeconds + procrastinationTimeElapsedSeconds;
 	 	var timeString = formatCounter(timeSeconds);
