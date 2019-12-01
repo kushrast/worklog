@@ -19,7 +19,7 @@ var lastSavedTimestamp = null;
 
 var show_events = true;
 
-var procrastinationMode = true;
+var procrastinationMode = false;
 var procrastinationStartTimestamp = null;
 var procrastinationPreviousTimeElapsedSeconds = 0;
 var procrastinationTimeElapsedSeconds = 0;
@@ -570,6 +570,11 @@ function setupProcrastinationMode() {
 		}
 	} else if (!procrastinationMode) {
 		$("#procrastination").hide();
+		if (topicExists(selectedTopicID)) {
+			setTopicAlert(getTopicName(selectedTopicID));
+		} else {
+			setTopicAlert("No Topic Selected");
+		}
 	}
 }
 
