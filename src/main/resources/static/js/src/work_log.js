@@ -324,8 +324,6 @@ function stopTimerUtils(timeElapsed, time) {
 		localStorage.setItem("isWorkingOnTask", false);
 
 		if (procrastinationMode) {
-			var procrastinationEventString = `Started procrastinating`;
-			pushEvent(procrastinationEventString);
 			setupProcrastinationMode();
 		}
 		storeTopics();
@@ -586,6 +584,8 @@ function setupProcrastinationMode() {
 		procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
 	 	$("#time-elapsed-procrastination").html(formatCounter(procrastinationPreviousTimeElapsedSeconds));
 		if (!isWorkingOnTask) {
+			var procrastinationEventString = `Started procrastinating`;
+			pushEvent(procrastinationEventString);
 			procrastinationStartTimestamp = new Date();
 			procrastinationTimeElapsedSeconds = 0;
 			$("#procrastination-button").removeClass("btn-light").addClass("btn-warning");
