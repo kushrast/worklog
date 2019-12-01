@@ -19,7 +19,7 @@ var lastSavedTimestamp = null;
 
 var show_events = true;
 
-var procrastinationMode = false;
+var procrastinationMode = true;
 var procrastinationStartTimestamp = null;
 var procrastionationPreviousTimeElapsedSeconds = 0;
 
