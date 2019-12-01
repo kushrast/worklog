@@ -475,7 +475,9 @@ function resetTopic() {
 		topicId = $(this).parent().parent().attr("id").substring(4);
 	}
 	console.log(topicId);
-	stopTimer();
+	if (topicId == selectedTopicID) {
+		stopTimer();
+	}
 	setTopicTime(topicId, 0, true);
 	storeTopics();
 	render();
