@@ -87,7 +87,6 @@ function setupStorage() {
 				procrastinationStartTimestamp = new Date();
 				procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
 				console.log(getTopic("procrastination"));
-				setTopicAlert("Procrastination");
 			}
 		}
 	}
@@ -529,7 +528,11 @@ function setActiveTopic() {
 			activeTopicMoreActions.addClass("btn-success");
 		}
 
-		setTopicAlert(getTopicName(selectedTopicID));
+		if (isWorkingOnTask || !procrastinationMode) {
+			setTopicAlert(getTopicName(selectedTopicID));
+		} else if (procrastinationMode) {
+			setTopicAlert("Procrastination");
+		}
 	}
 }
 
