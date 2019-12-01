@@ -81,8 +81,8 @@ function startClock() {
 /* Re-render topic and events lists */
 function render() {
 	if (topicExists(selectedTopicID)) {
-		document.title = "Work Log - " + topicsDictionary[selectedTopicID].name;
-		$("#time-elapsed-header").html(formatCounter(topicsDictionary[selectedTopicID].time));
+		document.title = "Work Log - " + getTopicName(selectedTopicID);
+		$("#time-elapsed-header").html(formatCounter(getTopicTime(selectedTopicID)));
 	}
 	renderTopics();
 	renderEvents();
@@ -97,8 +97,8 @@ function renderTopics() {
 		var topicButton = topicDiv.find("#work-template");
 		var timeElapsed = topicDiv.find("#time-elapsed");
 
-		timeElapsed.html(formatCounter(topicsDictionary[key].time));
-		topicButton.html(topicsDictionary[key].name);
+		timeElapsed.html(formatCounter(getTopicTime(key)));
+		topicButton.html(getTopicName(key));
 		topicButton.val(key);
 		topicButton.attr("id", key);
 		topicDiv.attr("id", "work"+key);
@@ -273,10 +273,10 @@ function stopTimerUtils(timeElapsed, time) {
 		isWorkingOnTask = false;
 		shouldUpdateTicker = false;
 		previousSessionsTimeElapsedSeconds += currSessionTimeElapsedSeconds;
-		topicsDictionary[selectedTopicID].time = previousSessionsTimeElapsedSeconds;
+		setTopicTime(selectedTopicID, previousSessionsTimeElapsedSeconds);
 		currSessionTimeElapsedSeconds = 0;
 
-		var eventString = `Stopped working on '${topicsDictionary[selectedTopicID].name}'`;
+		var eventString = `Stopped working on '${getTopicName(selectedTopicID)}'`;
 		pushEvent(eventString);
 
 		$("#elapsed-button").prop("disabled", true);
@@ -295,7 +295,7 @@ function stopTimerUtils(timeElapsed, time) {
 
 /* Loads timer information */
 function loadTimer() {
-	previousSessionsTimeElapsedSeconds = topicsDictionary[selectedTopicID].time;
+	previousSessionsTimeElapsedSeconds = getTopicTime(selectedTopicID);
 	$("#time-elapsed-header").html(formatCounter(previousSessionsTimeElapsedSeconds));
 	$("#time-elapsed-"+selectedTopicID).html(formatCounter(previousSessionsTimeElapsedSeconds));
 }
@@ -308,7 +308,7 @@ function startTimer() {
 		workStartedTimestamp = new Date();
 		isWorkingOnTask = true;
 		shouldUpdateTicker = true;
-		var eventString = `Started working on '${topicsDictionary[selectedTopicID].name}'`;
+		var eventString = `Started working on '${getTopicName(selectedTopicID)}'`;
 		pushEvent(eventString);
 
 		$("#elapsed-button").prop("disabled", false);
@@ -338,7 +338,7 @@ function checkIfActive() {
 	$("#stop-timer").hide();
 	$("#start-timer").show();
 
-	$('#is-active-modal-label').html("Are you still working on '" + topicsDictionary[selectedTopicID].name + "'?");
+	$('#is-active-modal-label').html("Are you still working on '" + getTopicName(selectedTopicID) + "'?");
 	$('#is-active-modal').modal();
 }
 
@@ -383,7 +383,7 @@ function addNewTopic(topic) {
 
 function addNewNote(noteContent) {
 	if (topicExists(selectedTopicID)) {
-		pushEvent(topicsDictionary[selectedTopicID].name+": "+noteContent);
+		pushEvent(getTopicName(selectedTopicID+": "+noteContent);
 	} else {
 		pushEvent("No Topic: "+noteContent);
 	}
@@ -403,7 +403,7 @@ function deleteTopic() {
 		selectedTopicID = "";
 	}
 	delete topicsDictionary[topicId];
-	setActiveTopic("No Topic Selected");
+	setTopicAlert("No Topic Selected");
 	storeTopics()
 	renderTopics();
 }
@@ -419,8 +419,8 @@ function changeTopicName(element) {
 	var topicId = element.parent().find(".topicButton").attr("id");
 	var newName = element.val();
 
-	pushEvent(`Renamed '${topicsDictionary[selectedTopicID].name}' to '${newName}'`)
-	topicsDictionary[topicId].name = newName;
+	pushEvent(`Renamed '${getTopicName(topicId)}' to '${newName}'`)
+	setTopicName(topicId, newName);
 
 	storeTopics();
 }
@@ -432,15 +432,15 @@ function selectTopic() {
 		if (topicExists(selectedTopicID)) {
 			stopTimer();
 			unsetActiveTopic();
+
+			selectedTopicID = $(this).val();
+			storeSelectedTopicID();
+
+			setActiveTopic();
+			startTimer();
+
+			document.title = "Work Log - " + getTopicName(selectedTopicID);
 		}
-
-		selectedTopicID = $(this).val();
-		storeSelectedTopicID();
-
-		setActiveTopic();
-		startTimer();
-
-		document.title = "Work Log - " + topicsDictionary[selectedTopicID].name;
 	} else {
 		toggleTimer(!isWorkingOnTask);
 	}
@@ -464,7 +464,7 @@ function setActiveTopic() {
 			activeTopic.addClass("btn-success");
 		}
 
-		setTopicAlert(topicsDictionary[selectedTopicID].name);
+		setTopicAlert(getTopicName(selectedTopicID));
 	}
 }
 
@@ -485,7 +485,7 @@ function saveData() {
 	var new_events = eventsLogList.slice(0);
 
 	if (isWorkingOnTask) {
-		new_events.push(`[${currTimeFormatted}] Stopped working on '${topicsDictionary[selectedTopicID].name}'`);
+		new_events.push(`[${currTimeFormatted}] Stopped working on '${getTopicName(selectedTopicID)}'`);
 	}
 	var file_dump = {"events" : new_events, "topics" : topicsDictionary, "selectedTopicID": selectedTopicID}
 	var blob = new Blob([JSON.stringify(file_dump, null, 2)], {type : 'application/json'});
@@ -539,6 +539,26 @@ function storeSelectedTopicID() {
 
 function topicExists(id) {
 	return id != "" && id != null && topicsDictionary[id] != null;
+}
+
+function setTopicTime(id, time) {
+	topicsDictionary[id].time = time;
+}
+
+function setTopicName(id, name) {
+	topicsDictionary[id].name = name;
+}
+
+function getTopicTime(id) {
+	return getTopic(id).time;
+}
+
+function getTopicName(id) {
+	return getTopic(id).name;
+}
+
+function getTopic(id) {
+	return topicsDictionary[id];
 }
 
 function storeLocalStorage(eventsLogList="", topicsDictionary="", selectedTopicID="") {
