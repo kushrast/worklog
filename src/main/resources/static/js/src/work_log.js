@@ -114,6 +114,8 @@ function renderTopics() {
 		}
 	}
 
+	$("#time-elapsed-break").html(formatCounter(getTopicTime("break")));
+
 	setActiveTopic();
 }
 
@@ -418,7 +420,12 @@ function editTopic() {
 }
 
 function resetTopic() {
-	var topicId = $(this).parent().parent().attr("id").substring(4);
+	var topicId;
+	if ($(this).val() == "break") {
+		topicId = "break";
+	} else {
+		topicId = $(this).parent().parent().attr("id").substring(4);
+	}
 	console.log($(this));
 	stopTimer();
 	setTopicTime(topicId, 0, true);
