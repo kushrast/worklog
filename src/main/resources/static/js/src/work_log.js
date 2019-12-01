@@ -86,7 +86,7 @@ function setupStorage() {
 				console.log("setup procrastination");
 				procrastinationStartTimestamp = new Date();
 				procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
-				console.log(getTopic["procrastination"]);
+				console.log(getTopic("procrastination"));
 				setTopicAlert("Procrastination");
 			}
 		}
@@ -461,8 +461,8 @@ function editTopic() {
 
 function resetTopic() {
 	var topicId;
-	if ($(this).attr("value") == "break") {
-		topicId = "break";
+	if ($(this).attr("value") == "break" || $(this).attr("value") == "procrastination") {
+		topicId = $(this).attr("value");
 	} else {
 		topicId = $(this).parent().parent().attr("id").substring(4);
 	}
