@@ -112,7 +112,7 @@ function renderTopics() {
 	$("#list_items").html("");
 
 	for (var key in topicsDictionary) {
-		if (key != "break" && key != "procrastionation") {
+		if (key != "break" && key != "procrastination") {
 			var topicDiv = $("#template").clone();
 			var topicButton = topicDiv.find("#work-template");
 			var timeElapsed = topicDiv.find("#time-elapsed");
@@ -322,6 +322,7 @@ function stopTimerUtils(timeElapsed, time) {
 
 		if (procrastinationMode) {
 			procrastinationStartTimestamp = new Date();
+			setTopicAlert("Procrastination");
 		}
 		storeTopics();
 	}
