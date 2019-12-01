@@ -338,7 +338,7 @@ function checkIfActive() {
 	$("#start-timer").show();
 
 	$('#is-active-modal-label').html("Are you still working on '" + getTopicName(selectedTopicID) + "'?");
-	$('#is-active-modal').modal();
+	$('#is-active-modal').modal({backdrop: 'static', keyboard: false});
 }
 
 function modalReject() {
