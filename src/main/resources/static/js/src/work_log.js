@@ -324,7 +324,7 @@ function stopTimerUtils(timeElapsed, time) {
 		if (procrastinationMode) {
 			procrastinationStartTimestamp = new Date();
 			setTopicAlert("Procrastination");
-			$("#procrastination-button").addClass("btn-warning");
+			$("#procrastination-button").removeClass("btn-light").addClass("btn-warning");
 		}
 		storeTopics();
 	}
@@ -367,7 +367,7 @@ function startTimer() {
 			procrastinationPreviousTimeElapsedSeconds += procrastinationTimeElapsedSeconds;
 			setTopicTime("procrastination", procrastinationPreviousTimeElapsedSeconds);
 			procrastinationTimeElapsedSeconds = 0;
-			$("#procrastination-button").removeClass("btn-warning");
+			$("#procrastination-button").removeClass("btn-warning").addClass("btn-light");
 		}
 	}
 }
