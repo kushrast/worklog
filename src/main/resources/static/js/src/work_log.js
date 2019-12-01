@@ -76,6 +76,7 @@ function setupStorage() {
 
 /* Start clock timer */
 function startClock() {
+	lastSavedTimestamp = new Date().valueOf();
 	clockTick();
 }
 
@@ -542,8 +543,10 @@ function topicExists(id) {
 }
 
 function setTopicTime(id, time) {
-	console.log(currTimestamp - lastSavedTimestamp);
 	topicsDictionary[id].time = time;
+	if (currTimestamp - lastSavedTimestamp > 5000) {
+		storeTopics();
+	}
 }
 
 function setTopicName(id, name) {
