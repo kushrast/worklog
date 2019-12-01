@@ -78,15 +78,18 @@ function setupStorage() {
 
 		if (isWorkingOnTask) {
 			checkIfActive();
-		} else {
-			procrastinationMode = localStorage.getItem("procrastinationMode");
-			if (procrastinationMode == null || procrastinationMode == "false") {
-				procrastinationMode = false;
-			} else {
-				procrastinationMode = true;
-			}
-			setupProcrastinationMode();
 		}
+
+		procrastinationMode = localStorage.getItem("procrastinationMode");
+		if (procrastinationMode == null || procrastinationMode == "false") {
+			procrastinationMode = false;
+		} else {
+			procrastinationMode = true;
+		}
+		if (procrastinationMode) {
+			$("#strict-mode-toggle").prop("checked", true);
+		}
+		setupProcrastinationMode();
 	}
 }
 
