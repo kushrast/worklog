@@ -417,6 +417,7 @@ function editTopic() {
 
 function resetTopic() {
 	var topicId = $(this).parent().parent().parent().attr("id").substring(4);
+	console.log($(this));
 	stopTimer();
 	setTopicTime(topicId, 0, true);
 	storeTopics();
