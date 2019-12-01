@@ -558,14 +558,16 @@ function strictModeToggle() {
 }
 
 function setupProcrastinationMode() {
-	if (procrastinationMode && !isWorkingOnTask) {
+	if (procrastinationMode) {
 		$("#procrastination").show();
-		procrastinationStartTimestamp = new Date();
-		procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
-		procrastinationTimeElapsedSeconds = 0;
-		$("#procrastination-button").removeClass("btn-light").addClass("btn-warning");
-		$(".procrastination-actions").removeClass("btn-light").addClass("btn-warning");
-		console.log(getTopic("procrastination"));
+		if (!isWorkingOnTask) {
+			procrastinationStartTimestamp = new Date();
+			procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
+			procrastinationTimeElapsedSeconds = 0;
+			$("#procrastination-button").removeClass("btn-light").addClass("btn-warning");
+			$(".procrastination-actions").removeClass("btn-light").addClass("btn-warning");
+			console.log(getTopic("procrastination"));
+		}
 	} else if (!procrastinationMode) {
 		$("#procrastination").hide();
 	}
