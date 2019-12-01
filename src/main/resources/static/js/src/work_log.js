@@ -99,10 +99,10 @@ function renderTopics() {
 
 		timeElapsed.html(formatCounter(topicsDictionary[key].time));
 		topicButton.html(topicsDictionary[key].name);
-		topicButton.val(topicsDictionary[key].id);
-		topicButton.attr("id", topicsDictionary[key].id);
-		topicDiv.attr("id", "work"+topicsDictionary[key].id);
-		timeElapsed.attr("id", "time-elapsed-"+topicsDictionary[key].id);
+		topicButton.val(key);
+		topicButton.attr("id", key);
+		topicDiv.attr("id", "work"+key);
+		timeElapsed.attr("id", "time-elapsed-"+key);
 		topicDiv.find("#edit-topic-input").hide();
 		topicDiv.find("#time-note-group").hide();
 		$("#list_items").append(topicDiv);
@@ -454,16 +454,16 @@ function unsetActiveTopic() {
 }
 
 function setActiveTopic() {
-	var activeTopic = $(`#${selectedTopicID}`);
-	activeTopic.removeClass("btn-light").removeClass("btn-danger").removeClass("btn-success");
+	if (topicExists(selectedTopicID)) {
+		var activeTopic = $(`#${selectedTopicID}`);
+		activeTopic.removeClass("btn-light").removeClass("btn-danger").removeClass("btn-success");
 
-	if (isWorkingOnTask) {
-		activeTopic.addClass("btn-danger");
-	} else {
-		activeTopic.addClass("btn-success");
-	}
+		if (isWorkingOnTask) {
+			activeTopic.addClass("btn-danger");
+		} else {
+			activeTopic.addClass("btn-success");
+		}
 
-	if (selectedTopicID != null && selectedTopicID != "") {
 		setTopicAlert(topicsDictionary[selectedTopicID].name);
 	}
 }
