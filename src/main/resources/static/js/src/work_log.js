@@ -79,6 +79,10 @@ function setupStorage() {
 		if (isWorkingOnTask) {
 			checkIfActive();
 		} else {
+			procrastinationMode = localStorage.getItem("procrastinationMode");
+			if (procrastinationMode == null) {
+				procrastinationMode = false;
+			}
 			setupProcrastinationMode();
 		}
 	}
@@ -559,6 +563,8 @@ function strictModeToggle() {
 		$("#procrastination-button").removeClass("btn-warning").addClass("btn-light");
 		$(".procrastination-actions").removeClass("btn-warning").addClass("btn-light");
 	}
+
+	localStorage.setItem("procrastinationMode", procrastinationMode);
 	setupProcrastinationMode();
 }
 
