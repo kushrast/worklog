@@ -576,9 +576,10 @@ function strictModeToggle() {
 function setupProcrastinationMode() {
 	if (procrastinationMode) {
 		$("#procrastination").show();
+		procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
+	 	$("#time-elapsed-procrastination").html(formatCounter(procrastinationPreviousTimeElapsedSeconds));
 		if (!isWorkingOnTask) {
 			procrastinationStartTimestamp = new Date();
-			procrastinationPreviousTimeElapsedSeconds = getTopicTime("procrastination");
 			procrastinationTimeElapsedSeconds = 0;
 			$("#procrastination-button").removeClass("btn-light").addClass("btn-warning");
 			$(".procrastination-actions").removeClass("btn-light").addClass("btn-warning");
