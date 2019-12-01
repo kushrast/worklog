@@ -96,20 +96,22 @@ function renderTopics() {
 	$("#list_items").html("");
 
 	for (var key in topicsDictionary) {
-		var topicDiv = $("#template").clone();
-		var topicButton = topicDiv.find("#work-template");
-		var timeElapsed = topicDiv.find("#time-elapsed");
+		if (key != "break") {
+			var topicDiv = $("#template").clone();
+			var topicButton = topicDiv.find("#work-template");
+			var timeElapsed = topicDiv.find("#time-elapsed");
 
-		timeElapsed.html(formatCounter(getTopicTime(key)));
-		topicButton.html(getTopicName(key));
-		topicButton.val(key);
-		topicButton.attr("id", key);
-		topicDiv.attr("id", "work"+key);
-		timeElapsed.attr("id", "time-elapsed-"+key);
-		topicDiv.find("#edit-topic-input").hide();
-		topicDiv.find("#time-note-group").hide();
-		$("#list_items").append(topicDiv);
-		topicDiv.show();
+			timeElapsed.html(formatCounter(getTopicTime(key)));
+			topicButton.html(getTopicName(key));
+			topicButton.val(key);
+			topicButton.attr("id", key);
+			topicDiv.attr("id", "work"+key);
+			timeElapsed.attr("id", "time-elapsed-"+key);
+			topicDiv.find("#edit-topic-input").hide();
+			topicDiv.find("#time-note-group").hide();
+			$("#list_items").append(topicDiv);
+			topicDiv.show();
+		}
 	}
 
 	setActiveTopic();
