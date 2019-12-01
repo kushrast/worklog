@@ -484,11 +484,7 @@ function clearData() {
 
 function saveData() {
 	var new_events = eventsLogList.slice(0);
-
-	if (isWorkingOnTask) {
-		new_events.push(`[${currTimeFormatted}] Stopped working on '${getTopicName(selectedTopicID)}'`);
-	}
-	var file_dump = {"events" : new_events, "topics" : topicsDictionary, "selectedTopicID": selectedTopicID}
+	var file_dump = {"events" : new_events, "topics" : topicsDictionary, "selectedTopicID": selectedTopicID, "selectedTopicID", "workStartedTimestamp", workStartedTimestamp, "isWorkingOnTask", isWorkingOnTask}
 	var blob = new Blob([JSON.stringify(file_dump, null, 2)], {type : 'application/json'});
 	var url = window.URL.createObjectURL(blob);
 	$("#file_download").html(url);
@@ -510,6 +506,12 @@ function importData(event) {
 			selectedTopicID = file_dump.selectedTopicID;
 
 			storeLocalStorage(eventsLogList, topicsDictionary, selectedTopicID);
+			workStartedTimestamp = file_dump.workStartedTimestamp;
+			isWorkingOnTask = file_dump.isWorkingOnTask;
+
+			if (isWorkingOnTask) {
+				checkIfActive();
+			}
 			render();
 
 			var updateAlert = $("#alert-template").clone();
